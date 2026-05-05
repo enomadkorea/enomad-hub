@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ENOMAD KOREA — 업무 허브</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #f5f6f8;
+  --panel: #ffffff;
+  --border: #e2e5ea;
+  --accent: #1a4fba;
+  --accent2: #0e3a9e;
+  --text: #1a1d23;
+  --sub: #5a6172;
+  --tag: #e8eef8;
+  --tag-text: #2a4a9e;
+  --green: #0d7a45;
+  --green-bg: #e8f5ee;
+  --red: #c0392b;
+  --red-bg: #fdf0ee;
+  --yellow: #8a6200;
+  --yellow-bg: #fff8e6;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+
+/* 상단 헤더 */
+header {
+  background: #0f1d3a;
+  color: #fff;
+  padding: 14px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+header .logo { display: flex; align-items: center; gap: 12px; }
+header .logo-text { font-size: 16px; font-weight: 700; letter-spacing: 1px; color: #fff; }
+header .logo-sub { font-size: 11px; color: #8fa3cc; margin-top: 1px; }
+header .date { font-size: 12px; color: #8fa3cc; }
+
+/* 레이아웃 */
+.layout { display: flex; min-height: calc(100vh - 52px); }
+
+/* 사이드바 */
+.sidebar {
+  width: 220px; min-width: 220px;
+  background: #0f1d3a;
+  padding: 16px 0;
+  position: sticky; top: 0; height: calc(100vh - 52px);
+  overflow-y: auto;
+}
+.sidebar-section { margin-bottom: 4px; }
+.sidebar-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  color: #5a78aa; padding: 10px 20px 4px;
+  text-transform: uppercase;
+}
+.sidebar-link {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 20px; color: #b8c8e8; font-size: 13px;
+  cursor: pointer; border-left: 3px solid transparent;
+  transition: all 0.15s; text-decoration: none;
+}
+.sidebar-link:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.sidebar-link.active { background: rgba(255,255,255,0.1); color: #fff; border-left-color: #4a8cff; }
+.sidebar-link .icon { font-size: 15px; width: 20px; text-align: center; }
+.sidebar-divider { border: none; border-top: 1px solid #1e3060; margin: 8px 16px; }
+
+/* 메인 */
+.main { flex: 1; padding: 24px 28px; overflow-y: auto; }
+
+/* 섹션 */
+.section { margin-bottom: 32px; display: none; }
+.section.active { display: block; }
+
+.section-title {
+  font-size: 18px; font-weight: 700; color: #0f1d3a;
+  margin-bottom: 16px; padding-bottom: 10px;
+  border-bottom: 2px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* 카드 그리드 */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+
+/* 트리 그룹 */
+.tree-group { margin-bottom: 16px; }
+.tree-group-title {
+  font-size: 12px; font-weight: 700; color: var(--sub);
+  letter-spacing: 0.5px; text-transform: uppercase;
+  padding: 6px 0 6px 8px; border-left: 3px solid var(--accent);
+  margin-bottom: 8px;
+}
+
+/* 링크 카드 */
+.link-card {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 16px;
+  display: flex; align-items: flex-start; gap: 12px;
+  text-decoration: none; color: inherit;
+  transition: all 0.15s; cursor: pointer;
+}
+.link-card:hover { border-color: var(--accent); box-shadow: 0 2px 8px rgba(26,79,186,0.1); transform: translateY(-1px); }
+.link-card .card-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+.link-card .card-body { flex: 1; min-width: 0; }
+.link-card .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.link-card .card-desc { font-size: 12px; color: var(--sub); line-height: 1.4; }
+.link-card .card-tag {
+  display: inline-block; font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 10px; margin-top: 6px;
+  background: var(--tag); color: var(--tag-text);
+}
+.link-card .card-tag.green { background: var(--green-bg); color: var(--green); }
+.link-card .card-tag.red { background: var(--red-bg); color: var(--red); }
+.link-card .card-tag.yellow { background: var(--yellow-bg); color: var(--yellow); }
+
+/* 파일 목록 */
+.file-list { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.file-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  text-decoration: none; color: inherit; transition: background 0.1s;
+}
+.file-item:last-child { border-bottom: none; }
+.file-item:hover { background: #f8f9fc; }
+.file-icon { font-size: 20px; flex-shrink: 0; }
+.file-body { flex: 1; }
+.file-name { font-size: 13px; font-weight: 600; }
+.file-meta { font-size: 11px; color: var(--sub); margin-top: 2px; }
+.file-download {
+  font-size: 11px; font-weight: 700; color: var(--accent);
+  padding: 4px 10px; border: 1px solid var(--accent);
+  border-radius: 6px; white-space: nowrap;
+}
+
+/* 검색창 */
+.search-bar {
+  background: var(--panel); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 10px 16px;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 20px;
+}
+.search-bar input {
+  flex: 1; border: none; outline: none; font-size: 14px; font-family: inherit; background: transparent;
+}
+.search-bar .search-icon { color: var(--sub); font-size: 16px; }
+
+/* 홈 퀵링크 */
+.quick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 24px; }
+.quick-btn {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px 12px; text-align: center;
+  cursor: pointer; text-decoration: none; color: var(--text);
+  transition: all 0.15s; display: block;
+}
+.quick-btn:hover { border-color: var(--accent); background: var(--tag); }
+.quick-btn .q-icon { font-size: 26px; margin-bottom: 8px; }
+.quick-btn .q-label { font-size: 12px; font-weight: 600; }
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { padding: 16px; }
+  .card-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div>
+      <div class="logo-text">ENOMAD KOREA</div>
+      <div class="logo-sub">업무 허브 · Internal Hub</div>
+    </div>
+  </div>
+  <div class="date" id="headerDate"></div>
+</header>
+
+<div class="layout">
+  <!-- 사이드바 -->
+  <nav class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">메뉴</div>
+      <a class="sidebar-link active" onclick="showSection('home')" href="#">
+        <span class="icon">🏠</span> 홈
+      </a>
+    </div>
+    <hr class="sidebar-divider"/>
+    <div class="sidebar-section">
+      <div class="sidebar-label">업무 파트</div>
+      <a class="sidebar-link" onclick="showSection('general')" href="#">
+        <span class="icon">📋</span> 업무 일반
+      </a>
+      <a class="sidebar-link" onclick="showSection('siliconto')" href="#">
+        <span class="icon">💊</span> 실리콘투 업무
+      </a>
+      <a class="sidebar-link" onclick="showSection('fba')" href="#">
+        <span class="icon">📦</span> 아마존 FBA
+      </a>
+      <a class="sidebar-link" onclick="showSection('mexico')" href="#">
+        <span class="icon">🌎</span> 멕시코 물류
+      </a>
+      <a class="sidebar-link" onclick="showSection('etc')" href="#">
+        <span class="icon">🔧</span> 기타
+      </a>
+    </div>
+    <hr class="sidebar-divider"/>
+    <div class="sidebar-section">
+      <div class="sidebar-label">툴</div>
+      <a class="sidebar-link" href="https://enomadkorea.github.io/enomad-quote/ups.html" target="_blank">
+        <span class="icon">🚚</span> UPS 운임 계산
+      </a>
+      <a class="sidebar-link" href="https://enomadkorea.github.io/enomad-quote/hscode.html" target="_blank">
+        <span class="icon">🔍</span> HS Code 조회
+      </a>
+      <a class="sidebar-link" href="https://enomadkorea.github.io/enomad-quote/" target="_blank">
+        <span class="icon">📝</span> 견적 문의 폼
+      </a>
+    </div>
+  </nav>
+
+  <!-- 메인 -->
+  <main class="main">
+
+    <!-- 홈 -->
+    <div class="section active" id="sec-home">
+      <div class="section-title">🏠 홈</div>
+
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="메뉴, 사이트, 파일 검색..." id="globalSearch" oninput="globalSearchFn(this.value)"/>
+      </div>
+
+      <div style="font-size:12px; font-weight:700; color:var(--sub); margin-bottom:10px; letter-spacing:0.5px;">퀵 링크</div>
+      <div class="quick-grid">
+        <a class="quick-btn" onclick="showSection('general')" href="#">
+          <div class="q-icon">📋</div>
+          <div class="q-label">업무 일반</div>
+        </a>
+        <a class="quick-btn" onclick="showSection('siliconto')" href="#">
+          <div class="q-icon">💊</div>
+          <div class="q-label">실리콘투</div>
+        </a>
+        <a class="quick-btn" onclick="showSection('fba')" href="#">
+          <div class="q-icon">📦</div>
+          <div class="q-label">아마존 FBA</div>
+        </a>
+        <a class="quick-btn" onclick="showSection('mexico')" href="#">
+          <div class="q-icon">🌎</div>
+          <div class="q-label">멕시코 물류</div>
+        </a>
+        <a class="quick-btn" href="https://enomadkorea.github.io/enomad-quote/ups.html" target="_blank">
+          <div class="q-icon">🚚</div>
+          <div class="q-label">UPS 계산기</div>
+        </a>
+        <a class="quick-btn" href="https://enomadkorea.github.io/enomad-quote/hscode.html" target="_blank">
+          <div class="q-icon">🔍</div>
+          <div class="q-label">HS Code</div>
+        </a>
+      </div>
+
+      <div style="font-size:12px; font-weight:700; color:var(--sub); margin-bottom:10px; margin-top:8px; letter-spacing:0.5px;">자주 쓰는 사이트</div>
+      <div class="card-grid">
+        <a class="link-card" href="https://www.ups.com/us/en/business-solutions/shipping.page" target="_blank">
+          <div class="card-icon">🟤</div>
+          <div class="card-body">
+            <div class="card-title">UPS 배송 관리</div>
+            <div class="card-desc">운송장 발행, 픽업 예약, 추적</div>
+            <span class="card-tag">로그인 필요</span>
+          </div>
+        </a>
+        <a class="link-card" href="https://sellercentral.amazon.com" target="_blank">
+          <div class="card-icon">🟠</div>
+          <div class="card-body">
+            <div class="card-title">Amazon Seller Central</div>
+            <div class="card-desc">FBA 입고, 재고, 주문 관리</div>
+            <span class="card-tag">로그인 필요</span>
+          </div>
+        </a>
+        <a class="link-card" href="https://unipass.customs.go.kr" target="_blank">
+          <div class="card-icon">🇰🇷</div>
+          <div class="card-body">
+            <div class="card-title">유니패스 (관세청)</div>
+            <div class="card-desc">수출입 통관, 세금납부, 서류조회</div>
+            <span class="card-tag green">무료</span>
+          </div>
+        </a>
+        <a class="link-card" href="https://mail.naver.com" target="_blank">
+          <div class="card-icon">📧</div>
+          <div class="card-body">
+            <div class="card-title">이노마드 메일</div>
+            <div class="card-desc">park@enomad.co.kr</div>
+            <span class="card-tag">로그인 필요</span>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- 업무 일반 -->
+    <div class="section" id="sec-general">
+      <div class="section-title">📋 업무 일반</div>
+
+      <div class="tree-group">
+        <div class="tree-group-title">📁 회사 자료 / 파일</div>
+        <div class="file-list">
+          <a class="file-item" href="files/이노마드코리아_회사소개서.pdf" download>
+            <span class="file-icon">📄</span>
+            <div class="file-body">
+              <div class="file-name">이노마드코리아 회사소개서 2026</div>
+              <div class="file-meta">PDF · 최신버전</div>
+            </div>
+            <span class="file-download">⬇ 다운로드</span>
+          </a>
+          <a class="file-item" href="files/이노마드코리아_회사소개서_멕시코급행.pdf" download>
+            <span class="file-icon">📄</span>
+            <div class="file-body">
+              <div class="file-name">회사소개서 — 멕시코급행 간단버전</div>
+              <div class="file-meta">PDF · 외부미팅용</div>
+            </div>
+            <span class="file-download">⬇ 다운로드</span>
+          </a>
+          <a class="file-item" href="files/ENOMAD_요율표.pdf" download>
+            <span class="file-icon">📊</span>
+            <div class="file-body">
+              <div class="file-name">ENOMAD 요율표 2604</div>
+              <div class="file-meta">PDF · 2026년 4월</div>
+            </div>
+            <span class="file-download">⬇ 다운로드</span>
+          </a>
+          <a class="file-item" href="files/ENOMAD_멕시코요율표.xlsx" download>
+            <span class="file-icon">📊</span>
+            <div class="file-body">
+              <div class="file-name">멕시코 요율표 (쉽터) 260429</div>
+              <div class="file-meta">Excel · 2026년 4월</div>
+            </div>
+            <span class="file-download">⬇ 다운로드</span>
+          </a>
+          <a class="file-item" href="files/UPS요율_미국원가.pdf" download>
+            <span class="file-icon">📊</span>
+            <div class="file-body">
+              <div class="file-name">UPS 요율 미국원가</div>
+              <div class="file-meta">PDF</div>
+            </div>
+            <span class="file-download">⬇ 다운로드</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="tree-group">
+        <div class="tree-group-title">🔗 업무 공통 사이트</div>
+        <div class="card-grid">
+          <a class="link-card" href="https://unipass.customs.go.kr" target="_blank">
+            <div class="card-icon">🇰🇷</div>
+            <div class="card-body">
+              <div class="card-title">유니패스</div>
+              <div class="card-desc">수출입 통관, 세금, 서류 조회</div>
+              <span class="card-tag green">관세청</span>
+            </div>
+          </a>
+          <a class="link-card" href="https://www.customs.go.kr" target="_blank">
+            <div class="card-icon">🏛️</div>
+            <div class="card-body">
+              <div class="card-title">관세청</div>
+              <div class="card-desc">법령, 공지, 품목분류 조회</div>
+              <span class="card-tag green">공공기관</span>
+            </div>
+          </a>
+          <a class="link-card" href="https://www.forex.kr" target="_blank">
+            <div class="card-icon">💱</div>
+            <div class="card-body">
+              <div class="card-title">환율 조회</div>
+              <div class="card-desc">USD, MXN, EUR 실시간 환율</div>
+              <span class="card-tag green">실시간</span>
+            </div>
+          </a>
+          <a class="link-card" href="https://enomadkorea.github.io/enomad-quote/" target="_blank">
+            <div class="card-icon">📝</div>
+            <div class="card-body">
+              <div class="card-title">견적 문의 폼</div>
+              <div class="card-desc">고객 견적 접수 페이지</div>
+              <span class="card-tag">이노마드 툴</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 실리콘투 -->
+    <div class="section" id="sec-siliconto">
+      <div class="section-title">💊 실리콘투 업무</div>
+
+      <div class="tree-group">
+        <div class="tree-group-title">🔗 실리콘투 관련 사이트</div>
+        <div class="card-grid">
+          <a class="link-card" href="https://www.silicone2.com" target="_blank">
+            <div class="card-icon">💊</div>
+            <div class="card-body">
+              <div class="card-title">실리콘투 메인</div>
+              <div class="card-desc">실리콘투 공식 사이트</div>
+              <span class="card-tag">외부</span>
+            </div>
+          </a>
+          <div class="link-card" style="opacity:0.5; cursor:default;">
+            <div class="card-icon">➕</div>
+            <div class="card-body">
+              <div class="card-title">링크 추가 예정</div>
+              <div class="card-desc">필요한 링크를 알려주세요</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 아마존 FBA -->
+    <div class="section" id="sec-fba">
+      <div class="section-title">📦 아마존 FBA 미국 업무</div>
+
+      <div class="tree-group">
+        <div class="tree-group-title">✈️ 항공</div>
+        <div class="card-grid">
+          <a class="link-card" href="https://sellercentral.amazon.com" target="_blank">
+            <div class="card-icon">🟠</div>
+            <div class="card-body">
+              <div class="card-title">Amazon Seller Central</div>
+              <div class="card-desc">FBA 입고, 재고, 주문 관리</div>
+              <span class="card-tag">로그인 필요</span>
+            </div>
+          </a>
+          <a class="link-card" href="https://www.ups.com/us/en/business-solutions/shipping.page" target="_blank">
+            <div class="card-icon">🟤</div>
+            <div class="card-body">
+              <div class="card-title">UPS 배송 관리</div>
+              <div class="card-desc">운송장 발행, 픽업 예약, 추적</div>
+              <span class="card-tag">로그인 필요</span>
+            </div>
+          </a>
+          <a class="link-card" href="https://enomadkorea.github.io/enomad-quote/ups.html" target="_blank">
+            <div class="card-icon">🚚</div>
+            <div class="card-body">
+              <div class="card-title">UPS B2C 운임 계산기</div>
+              <div class="card-desc">존별 운임 자동 계산</div>
+              <span class="card-tag">이노마드 툴</span>
+            </div>
+          </a>
+          <a class="link-card" href="https://www.fedex.com/en-us/shipping.html" target="_blank">
+            <div class="card-icon">🟣</div>
+            <div class="card-body">
+              <div class="card-title">FedEx 배송</div>
+              <div class="card-desc">FedEx 운송장 발행 및 추적</div>
+              <span class="card-tag">외부</span>
+            </div>
+          </a>
+          <a class="link-card" href="https://www.fda.gov/food/fsvp-importers/fsvp-program-overview" target="_blank">
+            <div class="card-icon">🏥</div>
+            <div class="card-body">
+              <div class="card-title">FDA FSVP 안내</div>
+              <div class="card-desc">식품 안전 검증 프로그램 공식 안내</div>
+              <span class="card-tag yellow">FDA</span>
+            </div>
+          </a>
+          <a class="link-card" href="https://enomadkorea.github.io/enomad-quote/hscode.html" target="_blank">
+            <div class="card-icon">🔍</div>
+            <div class="card-body">
+              <div class="card-title">HS Code / 미국 관세 조회</div>
+              <div class="card-desc">USITC 기반 수입 관세율 확인</div>
+              <span class="card-tag">이노마드 툴</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="tree-group">
+        <div class="tree-group-title">🚢 해상</div>
+        <div class="card-grid">
+          <a class="link-card" href="https://www.hapag-lloyd.com" target="_blank">
+            <div class="card-icon">🚢</div>
+            <div class="card-body">
+              <div class="card-title">Hapag-Lloyd</div>
+              <div class="card-desc">해상 LCL 스케줄 및 운임 조회</div>
+              <span class="card-tag">선사</span>
+            </div>
+          </a>
+          <a class="link-card" href="https://www.hmm21.com" target="_blank">
+            <div class="card-icon">🚢</div>
+            <div class="card-body">
+              <div class="card-title">HMM (현대상선)</div>
+              <div class="card-desc">한국발 해상 스케줄 조회</div>
+              <span class="card-tag">선사</span>
+            </div>
+          </a>
+          <div class="link-card" style="opacity:0.5; cursor:default;">
+            <div class="card-icon">➕</div>
+            <div class="card-body">
+              <div class="card-title">링크 추가 예정</div>
+              <div class="card-desc">필요한 링크를 알려주세요</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 멕시코 -->
+    <div class="section" id="sec-mexico">
+      <div class="section-title">🌎 멕시코 물류 업무</div>
+
+      <div class="tree-group">
+        <div class="tree-group-title">🔗 멕시코 관련 사이트</div>
+        <div class="card-grid">
+          <a class="link-card" href="https://www.sat.gob.mx" target="_blank">
+            <div class="card-icon">🇲🇽</div>
+            <div class="card-body">
+              <div class="card-title">SAT (멕시코 세관)</div>
+              <div class="card-desc">멕시코 수입 통관, 세금 관련 공식 사이트</div>
+              <span class="card-tag yellow">멕시코 세관</span>
+            </div>
+          </a>
+          <a class="link-card" href="https://www.anam.gob.mx" target="_blank">
+            <div class="card-icon">🇲🇽</div>
+            <div class="card-body">
+              <div class="card-title">ANAM</div>
+              <div class="card-desc">멕시코 국가관세청</div>
+              <span class="card-tag yellow">멕시코 관세청</span>
+            </div>
+          </a>
+          <a class="link-card" href="https://www.dhl.com/mx-es/home.html" target="_blank">
+            <div class="card-icon">🟡</div>
+            <div class="card-body">
+              <div class="card-title">DHL 멕시코</div>
+              <div class="card-desc">멕시코 현지 배송 및 추적</div>
+              <span class="card-tag">배송사</span>
+            </div>
+          </a>
+          <div class="link-card" style="opacity:0.5; cursor:default;">
+            <div class="card-icon">➕</div>
+            <div class="card-body">
+              <div class="card-title">링크 추가 예정</div>
+              <div class="card-desc">필요한 링크를 알려주세요</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tree-group">
+        <div class="tree-group-title">📁 멕시코 관련 파일</div>
+        <div class="file-list">
+          <a class="file-item" href="files/ENOMAD_멕시코요율표.xlsx" download>
+            <span class="file-icon">📊</span>
+            <div class="file-body">
+              <div class="file-name">멕시코 요율표 (쉽터) 260429</div>
+              <div class="file-meta">Excel · 2026년 4월</div>
+            </div>
+            <span class="file-download">⬇ 다운로드</span>
+          </a>
+          <a class="file-item" href="files/이노마드코리아_회사소개서_멕시코급행.pdf" download>
+            <span class="file-icon">📄</span>
+            <div class="file-body">
+              <div class="file-name">회사소개서 — 멕시코급행 간단버전</div>
+              <div class="file-meta">PDF · 외부미팅용</div>
+            </div>
+            <span class="file-download">⬇ 다운로드</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 기타 -->
+    <div class="section" id="sec-etc">
+      <div class="section-title">🔧 기타</div>
+      <div class="card-grid">
+        <a class="link-card" href="https://drive.google.com" target="_blank">
+          <div class="card-icon">☁️</div>
+          <div class="card-body">
+            <div class="card-title">Google Drive</div>
+            <div class="card-desc">공유 문서, 스프레드시트</div>
+            <span class="card-tag">로그인 필요</span>
+          </div>
+        </a>
+        <a class="link-card" href="https://enomadkorea.github.io/enomad-website/" target="_blank">
+          <div class="card-icon">🌐</div>
+          <div class="card-body">
+            <div class="card-title">이노마드 공식 홈페이지</div>
+            <div class="card-desc">enomadkorea.github.io/enomad-website</div>
+            <span class="card-tag">공개</span>
+          </div>
+        </a>
+        <a class="link-card" href="https://www.iata.org/en/services/statistics/wats/wats-subscription/" target="_blank">
+          <div class="card-icon">✈️</div>
+          <div class="card-body">
+            <div class="card-title">IATA</div>
+            <div class="card-desc">항공 화물 표준 및 규정</div>
+            <span class="card-tag">항공</span>
+          </div>
+        </a>
+        <div class="link-card" style="opacity:0.5; cursor:default;">
+          <div class="card-icon">➕</div>
+          <div class="card-body">
+            <div class="card-title">링크 추가 예정</div>
+            <div class="card-desc">필요한 링크를 알려주세요</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// 날짜 표시
+const d = new Date();
+document.getElementById('headerDate').textContent =
+  d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0') + ' ' +
+  ['일','월','화','수','목','금','토'][d.getDay()] + '요일';
+
+// 섹션 전환
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  window.scrollTo(0, 0);
+  return false;
+}
+
+// 전체 검색 (기본 구현)
+function globalSearchFn(q) {
+  // 추후 구현
+}
+</script>
+
+</body>
+</html>
