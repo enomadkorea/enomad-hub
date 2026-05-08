@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ENOMAD CI/PL 변환기</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Montserrat:wght@600;700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:#F0F4F8;color:#2D3748;min-height:100vh;}
+
+.header{background:#0A1F44;padding:18px 32px;display:flex;justify-content:space-between;align-items:center;}
+.header .logo{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:800;color:#fff;letter-spacing:1px;}
+.header .logo span{color:#60A5FA;}
+.header .subtitle{font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;}
+.header .badge{background:#0066CC;color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:20px;}
+
+.container{max-width:1400px;margin:0 auto;padding:24px 20px;}
+
+/* 입력 섹션 */
+.input-section{background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;}
+.section-title{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;color:#0066CC;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-group label{font-size:12px;font-weight:700;color:#4A5568;}
+.form-group input, .form-group select, .form-group textarea{
+  border:1px solid #E2E8F0;border-radius:6px;padding:8px 12px;font-size:13px;
+  font-family:'Noto Sans KR',sans-serif;color:#2D3748;outline:none;
+  transition:border-color .2s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus{border-color:#0066CC;}
+.form-group textarea{resize:vertical;min-height:60px;}
+.form-full{grid-column:1/-1;}
+
+/* 품목 테이블 */
+.items-section{background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;}
+.items-table{width:100%;border-collapse:collapse;margin-bottom:12px;}
+.items-table th{background:#0A1F44;color:#fff;font-size:11px;padding:8px 10px;text-align:center;font-family:'Montserrat',sans-serif;font-weight:600;}
+.items-table td{padding:4px 4px;border-bottom:1px solid #E2E8F0;vertical-align:middle;}
+.items-table td input{width:100%;border:1px solid #E2E8F0;border-radius:4px;padding:6px 8px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;}
+.items-table td input:focus{border-color:#0066CC;background:#EBF4FF;}
+.items-table td.num{text-align:center;font-size:11px;color:#718096;width:30px;}
+.items-table td input.auto{background:#F7FAFC;color:#4A5568;}
+.del-btn{background:none;border:none;color:#FC8181;cursor:pointer;font-size:16px;padding:4px 8px;}
+.del-btn:hover{color:#E53E3E;}
+
+.btn-row{display:flex;gap:10px;margin-top:8px;}
+.btn{padding:8px 20px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif;transition:all .2s;}
+.btn-add{background:#EBF4FF;color:#0066CC;}
+.btn-add:hover{background:#BFDBFE;}
+.btn-primary{background:#0A1F44;color:#fff;}
+.btn-primary:hover{background:#1B3A6B;}
+.btn-export{background:#0066CC;color:#fff;}
+.btn-export:hover{background:#0052A3;}
+.btn-clear{background:#FFF5F5;color:#E53E3E;}
+.btn-clear:hover{background:#FED7D7;}
+
+/* 프리뷰 */
+.preview-section{background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+.preview-layout{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #CBD5E0;}
+
+.doc-box{padding:0;}
+.doc-title{background:#0A1F44;color:#fff;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;padding:8px 14px;letter-spacing:1px;}
+.doc-inner{padding:14px;}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #E2E8F0;margin-bottom:8px;}
+.info-cell{padding:6px 10px;border-right:1px solid #E2E8F0;border-bottom:1px solid #E2E8F0;}
+.info-cell:last-child{border-right:none;}
+.info-cell .lbl{font-size:9px;font-weight:700;color:#718096;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;}
+.info-cell .val{font-size:11px;color:#2D3748;font-weight:500;}
+.info-cell.full{grid-column:1/-1;}
+
+.preview-table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:8px;}
+.preview-table th{background:#E2E8F0;color:#4A5568;padding:5px 6px;text-align:center;font-weight:700;font-size:9px;border:1px solid #CBD5E0;}
+.preview-table td{padding:4px 6px;border:1px solid #E2E8F0;text-align:center;color:#2D3748;}
+.preview-table td.left{text-align:left;}
+.preview-table tr.total-row td{background:#EBF4FF;font-weight:700;color:#0A1F44;}
+
+.summary-box{background:#F7FAFC;border:1px solid #E2E8F0;border-radius:4px;padding:8px 10px;font-size:10px;color:#4A5568;line-height:1.8;}
+.summary-box strong{color:#0A1F44;}
+
+/* 액션 바 */
+.action-bar{background:#fff;border-radius:12px;padding:16px 24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+.action-bar .info{font-size:13px;color:#718096;flex:1;}
+.action-bar .info strong{color:#0A1F44;}
+
+/* 구분선 */
+.divider{border:none;border-top:2px solid #E2E8F0;margin:16px 0;}
+
+@media print{
+  body{background:#fff;}
+  .header,.input-section,.items-section,.action-bar,.btn-row{display:none!important;}
+  .preview-section{box-shadow:none;padding:0;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="logo"><span>ENOMAD</span> KOREA</div>
+    <div class="subtitle">CI / PL 변환기 — Commercial Invoice & Packing List Generator</div>
+  </div>
+  <div class="badge">INTERNAL TOOL</div>
+</div>
+
+<div class="container">
+
+  <!-- 기본 정보 입력 -->
+  <div class="input-section">
+    <div class="section-title">📋 기본 정보 입력</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Shipper / Exporter (수출자)</label>
+        <textarea id="shipper" placeholder="회사명&#10;주소&#10;연락처"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Consignee (수하인)</label>
+        <textarea id="consignee" placeholder="회사명&#10;주소&#10;연락처&#10;이메일"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Notify Party</label>
+        <input type="text" id="notify" value="SAME AS CONSIGNEE"/>
+      </div>
+      <div class="form-group">
+        <label>Invoice No. & Date</label>
+        <input type="text" id="invoiceNo" placeholder="예: ENOMAD-2026-001 / 2026.05.08"/>
+      </div>
+      <div class="form-group">
+        <label>Port of Loading (선적항)</label>
+        <input type="text" id="pol" value="BUSAN, KOREA"/>
+      </div>
+      <div class="form-group">
+        <label>Final Destination (목적지)</label>
+        <input type="text" id="pod" placeholder="예: LONG BEACH, USA"/>
+      </div>
+      <div class="form-group">
+        <label>Carrier (선사)</label>
+        <input type="text" id="carrier" placeholder="예: EVERGREEN"/>
+      </div>
+      <div class="form-group">
+        <label>Sailing on or about (출항 예정일)</label>
+        <input type="text" id="sailing" placeholder="예: 2026.05.15"/>
+      </div>
+      <div class="form-group">
+        <label>Terms of Delivery & Payment</label>
+        <input type="text" id="terms" placeholder="예: FOB BUSAN / T/T IN ADVANCE"/>
+      </div>
+      <div class="form-group">
+        <label>Country of Origin</label>
+        <input type="text" id="origin" value="REPUBLIC OF KOREA"/>
+      </div>
+      <div class="form-group">
+        <label>Remarks</label>
+        <input type="text" id="remarks" placeholder="특이사항 (선택)"/>
+      </div>
+      <div class="form-group">
+        <label>Freight</label>
+        <select id="freight">
+          <option value="FREIGHT PREPAID">FREIGHT PREPAID</option>
+          <option value="FREIGHT COLLECT">FREIGHT COLLECT</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 품목 입력 -->
+  <div class="items-section">
+    <div class="section-title">📦 품목 입력</div>
+    <table class="items-table" id="itemsTable">
+      <thead>
+        <tr>
+          <th style="width:30px;">No.</th>
+          <th>Marks & Numbers</th>
+          <th>Description of Goods</th>
+          <th style="width:70px;">Qty (CT)</th>
+          <th style="width:80px;">Qty (PCS)</th>
+          <th style="width:80px;">Net W. (kg)</th>
+          <th style="width:80px;">Gross W. (kg)</th>
+          <th style="width:90px;">Unit Price (USD)</th>
+          <th style="width:90px;">Amount (USD)</th>
+          <th style="width:36px;"></th>
+        </tr>
+      </thead>
+      <tbody id="itemsBody">
+      </tbody>
+      <tfoot>
+        <tr style="background:#F7FAFC;">
+          <td colspan="3" style="text-align:right;padding:8px 10px;font-weight:700;font-size:12px;color:#0A1F44;">TOTAL</td>
+          <td style="text-align:center;font-weight:700;font-size:12px;" id="totalCT">0</td>
+          <td style="text-align:center;font-weight:700;font-size:12px;" id="totalPCS">0</td>
+          <td style="text-align:center;font-weight:700;font-size:12px;" id="totalNW">0</td>
+          <td style="text-align:center;font-weight:700;font-size:12px;" id="totalGW">0</td>
+          <td></td>
+          <td style="text-align:center;font-weight:700;font-size:12px;color:#0066CC;" id="totalAmt">$0.00</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="btn-row">
+      <button class="btn btn-add" onclick="addRow()">+ 품목 추가</button>
+      <button class="btn btn-clear" onclick="clearItems()">전체 초기화</button>
+    </div>
+    <hr class="divider"/>
+    <div class="form-grid" style="grid-template-columns:repeat(4,1fr);gap:12px;">
+      <div class="form-group">
+        <label>Total Packages</label>
+        <input type="text" id="totalPkg" placeholder="예: 10 PALLETS"/>
+      </div>
+      <div class="form-group">
+        <label>Total CBM</label>
+        <input type="text" id="totalCBM" placeholder="예: 5.2"/>
+      </div>
+      <div class="form-group">
+        <label>L/C No. & Date (해당 시)</label>
+        <input type="text" id="lcNo" placeholder="N/A"/>
+      </div>
+      <div class="form-group">
+        <label>Consigned</label>
+        <input type="text" id="consigned" value="SAME AS ACCOUNT"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- 액션 바 -->
+  <div class="action-bar">
+    <div class="info">입력 완료 후 <strong>미리보기 생성</strong> → 확인 후 <strong>PDF 출력</strong></div>
+    <button class="btn btn-primary" onclick="generatePreview()">🔄 미리보기 생성</button>
+    <button class="btn btn-export" onclick="window.print()">🖨️ PDF 출력 / 인쇄</button>
+  </div>
+
+  <!-- 미리보기 -->
+  <div class="preview-section">
+    <div class="section-title">👁️ 미리보기 — ENOMAD 표준 양식</div>
+    <div class="preview-layout" id="previewLayout">
+      <!-- PL -->
+      <div class="doc-box" style="border-right:1px solid #CBD5E0;">
+        <div class="doc-title">PACKING LIST</div>
+        <div class="doc-inner" id="plPreview">
+          <div style="text-align:center;color:#CBD5E0;padding:40px;font-size:13px;">미리보기 생성 버튼을 눌러주세요</div>
+        </div>
+      </div>
+      <!-- CI -->
+      <div class="doc-box">
+        <div class="doc-title">COMMERCIAL INVOICE</div>
+        <div class="doc-inner" id="ciPreview">
+          <div style="text-align:center;color:#CBD5E0;padding:40px;font-size:13px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let rowCount = 0;
+
+function addRow() {
+  rowCount++;
+  const tbody = document.getElementById('itemsBody');
+  const tr = document.createElement('tr');
+  tr.id = 'row_' + rowCount;
+  tr.innerHTML = `
+    <td class="num">${rowCount}</td>
+    <td><input type="text" placeholder="Marks & No." onchange="calcRow(${rowCount})"/></td>
+    <td><input type="text" placeholder="품목명 (영문)" onchange="calcRow(${rowCount})"/></td>
+    <td><input type="number" placeholder="0" min="0" onchange="calcTotals()" style="text-align:center;"/></td>
+    <td><input type="number" placeholder="0" min="0" onchange="calcTotals()" style="text-align:center;"/></td>
+    <td><input type="number" placeholder="0.00" min="0" step="0.01" onchange="calcTotals()" style="text-align:center;"/></td>
+    <td><input type="number" placeholder="0.00" min="0" step="0.01" onchange="calcTotals()" style="text-align:center;"/></td>
+    <td><input type="number" placeholder="0.00" min="0" step="0.01" onchange="calcRow(${rowCount})" style="text-align:center;"/></td>
+    <td><input type="number" class="auto" readonly placeholder="자동계산" style="text-align:center;background:#F7FAFC;"/></td>
+    <td><button class="del-btn" onclick="delRow(${rowCount})">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function delRow(id) {
+  const row = document.getElementById('row_' + id);
+  if (row) row.remove();
+  calcTotals();
+}
+
+function calcRow(id) {
+  const row = document.getElementById('row_' + id);
+  if (!row) return;
+  const inputs = row.querySelectorAll('input[type="number"]');
+  const pcs = parseFloat(inputs[1].value) || 0;
+  const unitPrice = parseFloat(inputs[4].value) || 0;
+  inputs[5].value = (pcs * unitPrice).toFixed(2);
+  calcTotals();
+}
+
+function calcTotals() {
+  const rows = document.querySelectorAll('#itemsBody tr');
+  let totalCT=0, totalPCS=0, totalNW=0, totalGW=0, totalAmt=0;
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll('input[type="number"]');
+    if (inputs.length >= 6) {
+      totalCT  += parseFloat(inputs[0].value) || 0;
+      totalPCS += parseFloat(inputs[1].value) || 0;
+      totalNW  += parseFloat(inputs[2].value) || 0;
+      totalGW  += parseFloat(inputs[3].value) || 0;
+      totalAmt += parseFloat(inputs[5].value) || 0;
+    }
+  });
+  document.getElementById('totalCT').textContent  = totalCT  || 0;
+  document.getElementById('totalPCS').textContent = totalPCS || 0;
+  document.getElementById('totalNW').textContent  = totalNW.toFixed(2);
+  document.getElementById('totalGW').textContent  = totalGW.toFixed(2);
+  document.getElementById('totalAmt').textContent = '$' + totalAmt.toFixed(2);
+}
+
+function clearItems() {
+  if (!confirm('품목을 모두 초기화하시겠습니까?')) return;
+  document.getElementById('itemsBody').innerHTML = '';
+  rowCount = 0;
+  calcTotals();
+}
+
+function getVal(id) { return document.getElementById(id)?.value?.trim() || ''; }
+
+function generatePreview() {
+  const shipper   = getVal('shipper');
+  const consignee = getVal('consignee');
+  const notify    = getVal('notify');
+  const invoiceNo = getVal('invoiceNo');
+  const pol       = getVal('pol');
+  const pod       = getVal('pod');
+  const carrier   = getVal('carrier');
+  const sailing   = getVal('sailing');
+  const terms     = getVal('terms');
+  const origin    = getVal('origin');
+  const remarks   = getVal('remarks');
+  const freight   = getVal('freight');
+  const totalPkg  = getVal('totalPkg');
+  const totalCBM  = getVal('totalCBM');
+  const lcNo      = getVal('lcNo');
+  const consigned = getVal('consigned');
+
+  // 품목 수집
+  const rows = document.querySelectorAll('#itemsBody tr');
+  let itemsHTML_PL = '', itemsHTML_CI = '';
+  let tCT=0, tPCS=0, tNW=0, tGW=0, tAmt=0;
+
+  rows.forEach((row, idx) => {
+    const allInputs = row.querySelectorAll('input');
+    const marks     = allInputs[0]?.value || '';
+    const desc      = allInputs[1]?.value || '';
+    const numInputs = row.querySelectorAll('input[type="number"]');
+    const ct   = parseFloat(numInputs[0]?.value) || 0;
+    const pcs  = parseFloat(numInputs[1]?.value) || 0;
+    const nw   = parseFloat(numInputs[2]?.value) || 0;
+    const gw   = parseFloat(numInputs[3]?.value) || 0;
+    const up   = parseFloat(numInputs[4]?.value) || 0;
+    const amt  = parseFloat(numInputs[5]?.value) || (pcs * up);
+    tCT+=ct; tPCS+=pcs; tNW+=nw; tGW+=gw; tAmt+=amt;
+
+    itemsHTML_PL += `<tr>
+      <td class="left">${marks}</td>
+      <td class="left">${desc}</td>
+      <td>${ct || ''}</td><td>CT</td>
+      <td>${pcs || ''}</td><td>PCS</td>
+      <td>${nw ? nw.toFixed(2) : ''}</td>
+      <td>${gw ? gw.toFixed(2) : ''}</td>
+    </tr>`;
+    itemsHTML_CI += `<tr>
+      <td class="left">${marks}</td>
+      <td class="left">${desc}</td>
+      <td>${pcs || ''}</td><td>PCS</td>
+      <td>${up ? '$'+up.toFixed(2) : ''}</td>
+      <td>${amt ? '$'+amt.toFixed(2) : ''}</td>
+    </tr>`;
+  });
+
+  const infoBlock = (label, val, full=false) => `
+    <div class="info-cell${full?' full':''}">
+      <div class="lbl">${label}</div>
+      <div class="val">${(val||'—').replace(/\n/g,'<br/>')}</div>
+    </div>`;
+
+  const plHTML = `
+    <div class="info-grid">
+      ${infoBlock('1. Shipper / Exporter', shipper)}
+      ${infoBlock('8. Invoice No. & Date', invoiceNo)}
+      ${infoBlock('2. Consignee', consignee)}
+      ${infoBlock('9. L/C No. & Date', lcNo||'N/A')}
+      ${infoBlock('3. Notify Party', notify)}
+      ${infoBlock('11. Remarks', remarks||'—')}
+      ${infoBlock('4. Port of Loading', pol)}
+      ${infoBlock('5. Final Destination', pod)}
+      ${infoBlock('6. Carrier', carrier||'—')}
+      ${infoBlock('7. Sailing on or about', sailing||'—')}
+      ${infoBlock('10. Terms of Delivery & Payment', terms, true)}
+    </div>
+    <table class="preview-table">
+      <thead><tr>
+        <th>Marks & Numbers</th><th>Description</th>
+        <th>Qty</th><th>Unit</th>
+        <th>Qty</th><th>Unit</th>
+        <th>Net W.</th><th>Gross W.</th>
+      </tr></thead>
+      <tbody>${itemsHTML_PL}</tbody>
+      <tfoot><tr class="total-row">
+        <td colspan="2" style="text-align:right;">TOTAL</td>
+        <td>${tCT}</td><td>CT</td>
+        <td>${tPCS}</td><td>PCS</td>
+        <td>${tNW.toFixed(2)}</td><td>${tGW.toFixed(2)}</td>
+      </tr></tfoot>
+    </table>
+    <div class="summary-box">
+      <strong>* TOTAL PACKAGE :</strong> ${totalPkg || tCT + ' CT'}<br/>
+      <strong>* TOTAL NET WEIGHT :</strong> ${tNW.toFixed(2)} KG<br/>
+      <strong>* TOTAL GROSS WEIGHT :</strong> ${tGW.toFixed(2)} KG<br/>
+      <strong>* TOTAL CBM :</strong> ${totalCBM || '—'} CBM<br/>
+      <strong>* COUNTRY OF ORIGIN :</strong> ${origin}<br/>
+      <strong>* CONSIGNED :</strong> ${consigned}<br/>
+      <strong>* ${freight}</strong>
+    </div>`;
+
+  const ciHTML = `
+    <div class="info-grid">
+      ${infoBlock('1. Shipper / Exporter', shipper)}
+      ${infoBlock('8. Invoice No. & Date', invoiceNo)}
+      ${infoBlock('2. Consignee', consignee)}
+      ${infoBlock('9. L/C No. & Date', lcNo||'N/A')}
+      ${infoBlock('3. Notify Party', notify)}
+      ${infoBlock('11. Remarks', remarks||'—')}
+      ${infoBlock('4. Port of Loading', pol)}
+      ${infoBlock('5. Final Destination', pod)}
+      ${infoBlock('6. Carrier', carrier||'—')}
+      ${infoBlock('7. Sailing on or about', sailing||'—')}
+      ${infoBlock('10. Terms of Delivery & Payment', terms, true)}
+    </div>
+    <table class="preview-table">
+      <thead><tr>
+        <th>Marks & Numbers</th><th>Description</th>
+        <th>Qty</th><th>Unit</th>
+        <th>Unit Price</th><th>Amount</th>
+      </tr></thead>
+      <tbody>${itemsHTML_CI}</tbody>
+      <tfoot><tr class="total-row">
+        <td colspan="3" style="text-align:right;">TOTAL</td>
+        <td>${tPCS} PCS</td>
+        <td></td>
+        <td>$${tAmt.toFixed(2)}</td>
+      </tr></tfoot>
+    </table>
+    <div class="summary-box">
+      <strong>* TOTAL AMOUNT :</strong> USD ${tAmt.toFixed(2)}<br/>
+      <strong>* COUNTRY OF ORIGIN :</strong> ${origin}<br/>
+      <strong>* CONSIGNED :</strong> ${consigned}<br/>
+      <strong>* ${freight}</strong>
+    </div>`;
+
+  document.getElementById('plPreview').innerHTML = plHTML;
+  document.getElementById('ciPreview').innerHTML = ciHTML;
+
+  // 미리보기로 스크롤
+  document.querySelector('.preview-section').scrollIntoView({behavior:'smooth'});
+}
+
+// 초기 품목 3줄 추가
+addRow(); addRow(); addRow();
+</script>
+</body>
+</html>
