@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>ENOMAD CI/PL 변환기</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Montserrat:wght@600;700;800&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -17,35 +18,58 @@ body{font-family:'Noto Sans KR',sans-serif;background:#F0F4F8;color:#2D3748;min-
 
 .container{max-width:1400px;margin:0 auto;padding:24px 20px;}
 
-/* 입력 섹션 */
-.input-section{background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;}
+/* 업로드 존 */
+.upload-section{background:#fff;border-radius:12px;padding:28px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;}
 .section-title{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;color:#0066CC;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-.form-group{display:flex;flex-direction:column;gap:6px;}
-.form-group label{font-size:12px;font-weight:700;color:#4A5568;}
-.form-group input, .form-group select, .form-group textarea{
-  border:1px solid #E2E8F0;border-radius:6px;padding:8px 12px;font-size:13px;
-  font-family:'Noto Sans KR',sans-serif;color:#2D3748;outline:none;
-  transition:border-color .2s;
+
+.upload-zone{
+  border:2px dashed #93C5FD;border-radius:10px;
+  background:#EBF4FF;padding:36px;text-align:center;
+  cursor:pointer;transition:all .2s;position:relative;
 }
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus{border-color:#0066CC;}
-.form-group textarea{resize:vertical;min-height:60px;}
+.upload-zone:hover,.upload-zone.drag{border-color:#0066CC;background:#DBEAFE;}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-zone .icon{font-size:40px;margin-bottom:10px;}
+.upload-zone h3{font-size:16px;font-weight:700;color:#0A1F44;margin-bottom:6px;}
+.upload-zone p{font-size:13px;color:#718096;}
+.upload-zone .supported{margin-top:10px;font-size:11px;color:#93C5FD;font-weight:600;}
+
+/* 파싱 상태 */
+.status-box{background:#fff;border:1px solid #E2E8F0;border-radius:8px;padding:16px 20px;margin-top:14px;display:none;}
+.status-box.show{display:block;}
+.status-box .status-label{font-size:12px;font-weight:700;color:#718096;margin-bottom:6px;}
+.status-box .status-text{font-size:14px;color:#2D3748;}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid #E2E8F0;border-top-color:#0066CC;border-radius:50%;animation:spin .8s linear infinite;margin-right:8px;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* 입력 폼 */
+.input-section{background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group label{font-size:11px;font-weight:700;color:#4A5568;text-transform:uppercase;letter-spacing:0.5px;}
+.form-group input,.form-group select,.form-group textarea{
+  border:1px solid #E2E8F0;border-radius:6px;padding:8px 12px;font-size:13px;
+  font-family:'Noto Sans KR',sans-serif;color:#2D3748;outline:none;transition:border-color .2s;
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#0066CC;box-shadow:0 0 0 3px rgba(0,102,204,0.08);}
+.form-group textarea{resize:vertical;min-height:56px;}
+.form-group input.ai-filled{background:#F0FDF4;border-color:#86EFAC;}
 .form-full{grid-column:1/-1;}
 
 /* 품목 테이블 */
 .items-section{background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;}
-.items-table{width:100%;border-collapse:collapse;margin-bottom:12px;}
-.items-table th{background:#0A1F44;color:#fff;font-size:11px;padding:8px 10px;text-align:center;font-family:'Montserrat',sans-serif;font-weight:600;}
-.items-table td{padding:4px 4px;border-bottom:1px solid #E2E8F0;vertical-align:middle;}
-.items-table td input{width:100%;border:1px solid #E2E8F0;border-radius:4px;padding:6px 8px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;}
-.items-table td input:focus{border-color:#0066CC;background:#EBF4FF;}
-.items-table td.num{text-align:center;font-size:11px;color:#718096;width:30px;}
+.items-table{width:100%;border-collapse:collapse;margin-bottom:10px;}
+.items-table th{background:#0A1F44;color:#fff;font-size:10px;padding:8px 8px;text-align:center;font-family:'Montserrat',sans-serif;font-weight:600;white-space:nowrap;}
+.items-table td{padding:3px 3px;border-bottom:1px solid #E2E8F0;vertical-align:middle;}
+.items-table td input{width:100%;border:1px solid #E2E8F0;border-radius:4px;padding:6px 7px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;transition:border-color .2s;}
+.items-table td input:focus{border-color:#0066CC;}
+.items-table td input.ai-filled{background:#F0FDF4;border-color:#86EFAC;}
 .items-table td input.auto{background:#F7FAFC;color:#4A5568;}
-.del-btn{background:none;border:none;color:#FC8181;cursor:pointer;font-size:16px;padding:4px 8px;}
-.del-btn:hover{color:#E53E3E;}
+.items-table td.num{text-align:center;font-size:11px;color:#718096;width:28px;}
+.del-btn{background:none;border:none;color:#FC8181;cursor:pointer;font-size:15px;padding:3px 6px;}
 
-.btn-row{display:flex;gap:10px;margin-top:8px;}
-.btn{padding:8px 20px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif;transition:all .2s;}
+.btn-row{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;}
+.btn{padding:8px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif;transition:all .2s;}
 .btn-add{background:#EBF4FF;color:#0066CC;}
 .btn-add:hover{background:#BFDBFE;}
 .btn-primary{background:#0A1F44;color:#fff;}
@@ -53,44 +77,43 @@ body{font-family:'Noto Sans KR',sans-serif;background:#F0F4F8;color:#2D3748;min-
 .btn-export{background:#0066CC;color:#fff;}
 .btn-export:hover{background:#0052A3;}
 .btn-clear{background:#FFF5F5;color:#E53E3E;}
-.btn-clear:hover{background:#FED7D7;}
 
-/* 프리뷰 */
+/* AI 배지 */
+.ai-badge{display:inline-block;background:#F0FDF4;border:1px solid #86EFAC;color:#16A34A;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-left:8px;}
+
+/* 액션바 */
+.action-bar{background:#fff;border-radius:12px;padding:16px 24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+.action-bar .info{font-size:13px;color:#718096;flex:1;}
+
+/* 미리보기 */
 .preview-section{background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);}
 .preview-layout{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #CBD5E0;}
-
 .doc-box{padding:0;}
-.doc-title{background:#0A1F44;color:#fff;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:700;padding:8px 14px;letter-spacing:1px;}
-.doc-inner{padding:14px;}
+.doc-title{background:#0A1F44;color:#fff;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;padding:8px 14px;letter-spacing:1px;}
+.doc-inner{padding:12px;}
 
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #E2E8F0;margin-bottom:8px;}
-.info-cell{padding:6px 10px;border-right:1px solid #E2E8F0;border-bottom:1px solid #E2E8F0;}
+.info-cell{padding:5px 8px;border-right:1px solid #E2E8F0;border-bottom:1px solid #E2E8F0;}
 .info-cell:last-child{border-right:none;}
-.info-cell .lbl{font-size:9px;font-weight:700;color:#718096;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;}
-.info-cell .val{font-size:11px;color:#2D3748;font-weight:500;}
+.info-cell .lbl{font-size:8.5px;font-weight:700;color:#718096;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;}
+.info-cell .val{font-size:10px;color:#2D3748;font-weight:500;white-space:pre-line;}
 .info-cell.full{grid-column:1/-1;}
 
 .preview-table{width:100%;border-collapse:collapse;font-size:10px;margin-bottom:8px;}
-.preview-table th{background:#E2E8F0;color:#4A5568;padding:5px 6px;text-align:center;font-weight:700;font-size:9px;border:1px solid #CBD5E0;}
-.preview-table td{padding:4px 6px;border:1px solid #E2E8F0;text-align:center;color:#2D3748;}
+.preview-table th{background:#E2E8F0;color:#4A5568;padding:5px 5px;text-align:center;font-weight:700;font-size:9px;border:1px solid #CBD5E0;white-space:nowrap;}
+.preview-table td{padding:4px 5px;border:1px solid #E2E8F0;text-align:center;color:#2D3748;}
 .preview-table td.left{text-align:left;}
 .preview-table tr.total-row td{background:#EBF4FF;font-weight:700;color:#0A1F44;}
 
-.summary-box{background:#F7FAFC;border:1px solid #E2E8F0;border-radius:4px;padding:8px 10px;font-size:10px;color:#4A5568;line-height:1.8;}
+.summary-box{background:#F7FAFC;border:1px solid #E2E8F0;border-radius:4px;padding:7px 10px;font-size:9.5px;color:#4A5568;line-height:1.8;}
 .summary-box strong{color:#0A1F44;}
-
-/* 액션 바 */
-.action-bar{background:#fff;border-radius:12px;padding:16px 24px;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
-.action-bar .info{font-size:13px;color:#718096;flex:1;}
-.action-bar .info strong{color:#0A1F44;}
-
-/* 구분선 */
-.divider{border:none;border-top:2px solid #E2E8F0;margin:16px 0;}
+.divider{border:none;border-top:2px solid #E2E8F0;margin:14px 0;}
 
 @media print{
-  body{background:#fff;}
-  .header,.input-section,.items-section,.action-bar,.btn-row{display:none!important;}
+  .header,.upload-section,.input-section,.items-section,.action-bar,.btn-row,.status-box{display:none!important;}
   .preview-section{box-shadow:none;padding:0;}
+  .container{padding:0;}
+  body{background:#fff;}
 }
 </style>
 </head>
@@ -99,16 +122,32 @@ body{font-family:'Noto Sans KR',sans-serif;background:#F0F4F8;color:#2D3748;min-
 <div class="header">
   <div>
     <div class="logo"><span>ENOMAD</span> KOREA</div>
-    <div class="subtitle">CI / PL 변환기 — Commercial Invoice & Packing List Generator</div>
+    <div class="subtitle">CI / PL 변환기 — 파일 업로드 → AI 자동 파싱 → ENOMAD 표준 양식 출력</div>
   </div>
-  <div class="badge">INTERNAL TOOL</div>
+  <div class="badge">AI POWERED</div>
 </div>
 
 <div class="container">
 
-  <!-- 기본 정보 입력 -->
+  <!-- 파일 업로드 -->
+  <div class="upload-section">
+    <div class="section-title">📎 고객 파일 업로드 <span class="ai-badge">✨ AI 자동 파싱</span></div>
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.pdf,.txt" onchange="handleFile(this.files[0])"/>
+      <div class="icon">📂</div>
+      <h3>파일을 드래그하거나 클릭해서 업로드</h3>
+      <p>고객이 보내온 인보이스 / 패킹리스트 파일을 올려주세요</p>
+      <div class="supported">지원 형식: Excel (.xlsx, .xls) · CSV · 텍스트 (.txt)</div>
+    </div>
+    <div class="status-box" id="statusBox">
+      <div class="status-label">처리 상태</div>
+      <div class="status-text" id="statusText"></div>
+    </div>
+  </div>
+
+  <!-- 기본 정보 -->
   <div class="input-section">
-    <div class="section-title">📋 기본 정보 입력</div>
+    <div class="section-title">📋 기본 정보 <span class="ai-badge" id="aiBadge1" style="display:none;">✨ AI 자동입력</span></div>
     <div class="form-grid">
       <div class="form-group">
         <label>Shipper / Exporter (수출자)</label>
@@ -139,7 +178,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#F0F4F8;color:#2D3748;min-
         <input type="text" id="carrier" placeholder="예: EVERGREEN"/>
       </div>
       <div class="form-group">
-        <label>Sailing on or about (출항 예정일)</label>
+        <label>Sailing on or about</label>
         <input type="text" id="sailing" placeholder="예: 2026.05.15"/>
       </div>
       <div class="form-group">
@@ -161,29 +200,44 @@ body{font-family:'Noto Sans KR',sans-serif;background:#F0F4F8;color:#2D3748;min-
           <option value="FREIGHT COLLECT">FREIGHT COLLECT</option>
         </select>
       </div>
+      <div class="form-group">
+        <label>Total Packages</label>
+        <input type="text" id="totalPkg" placeholder="예: 10 PALLETS"/>
+      </div>
+      <div class="form-group">
+        <label>Total CBM</label>
+        <input type="text" id="totalCBM" placeholder="예: 5.2"/>
+      </div>
+      <div class="form-group">
+        <label>L/C No. & Date</label>
+        <input type="text" id="lcNo" placeholder="N/A"/>
+      </div>
+      <div class="form-group">
+        <label>Consigned</label>
+        <input type="text" id="consigned" value="SAME AS ACCOUNT"/>
+      </div>
     </div>
   </div>
 
-  <!-- 품목 입력 -->
+  <!-- 품목 -->
   <div class="items-section">
-    <div class="section-title">📦 품목 입력</div>
+    <div class="section-title">📦 품목 <span class="ai-badge" id="aiBadge2" style="display:none;">✨ AI 자동입력</span></div>
     <table class="items-table" id="itemsTable">
       <thead>
         <tr>
-          <th style="width:30px;">No.</th>
+          <th style="width:28px;">No.</th>
           <th>Marks & Numbers</th>
           <th>Description of Goods</th>
-          <th style="width:70px;">Qty (CT)</th>
-          <th style="width:80px;">Qty (PCS)</th>
-          <th style="width:80px;">Net W. (kg)</th>
-          <th style="width:80px;">Gross W. (kg)</th>
-          <th style="width:90px;">Unit Price (USD)</th>
-          <th style="width:90px;">Amount (USD)</th>
-          <th style="width:36px;"></th>
+          <th style="width:65px;">Qty (CT)</th>
+          <th style="width:70px;">Qty (PCS)</th>
+          <th style="width:75px;">Net W.(kg)</th>
+          <th style="width:75px;">Gross W.(kg)</th>
+          <th style="width:85px;">Unit Price($)</th>
+          <th style="width:85px;">Amount($)</th>
+          <th style="width:32px;"></th>
         </tr>
       </thead>
-      <tbody id="itemsBody">
-      </tbody>
+      <tbody id="itemsBody"></tbody>
       <tfoot>
         <tr style="background:#F7FAFC;">
           <td colspan="3" style="text-align:right;padding:8px 10px;font-weight:700;font-size:12px;color:#0A1F44;">TOTAL</td>
@@ -199,53 +253,30 @@ body{font-family:'Noto Sans KR',sans-serif;background:#F0F4F8;color:#2D3748;min-
     </table>
     <div class="btn-row">
       <button class="btn btn-add" onclick="addRow()">+ 품목 추가</button>
-      <button class="btn btn-clear" onclick="clearItems()">전체 초기화</button>
-    </div>
-    <hr class="divider"/>
-    <div class="form-grid" style="grid-template-columns:repeat(4,1fr);gap:12px;">
-      <div class="form-group">
-        <label>Total Packages</label>
-        <input type="text" id="totalPkg" placeholder="예: 10 PALLETS"/>
-      </div>
-      <div class="form-group">
-        <label>Total CBM</label>
-        <input type="text" id="totalCBM" placeholder="예: 5.2"/>
-      </div>
-      <div class="form-group">
-        <label>L/C No. & Date (해당 시)</label>
-        <input type="text" id="lcNo" placeholder="N/A"/>
-      </div>
-      <div class="form-group">
-        <label>Consigned</label>
-        <input type="text" id="consigned" value="SAME AS ACCOUNT"/>
-      </div>
+      <button class="btn btn-clear" onclick="clearItems()">초기화</button>
     </div>
   </div>
 
-  <!-- 액션 바 -->
+  <!-- 액션 -->
   <div class="action-bar">
-    <div class="info">입력 완료 후 <strong>미리보기 생성</strong> → 확인 후 <strong>PDF 출력</strong></div>
+    <div class="info">내용 확인 후 <strong>미리보기 생성</strong> → <strong>PDF 출력</strong></div>
     <button class="btn btn-primary" onclick="generatePreview()">🔄 미리보기 생성</button>
-    <button class="btn btn-export" onclick="window.print()">🖨️ PDF 출력 / 인쇄</button>
+    <button class="btn btn-export" onclick="window.print()">🖨️ PDF 출력</button>
   </div>
 
   <!-- 미리보기 -->
   <div class="preview-section">
     <div class="section-title">👁️ 미리보기 — ENOMAD 표준 양식</div>
     <div class="preview-layout" id="previewLayout">
-      <!-- PL -->
       <div class="doc-box" style="border-right:1px solid #CBD5E0;">
         <div class="doc-title">PACKING LIST</div>
         <div class="doc-inner" id="plPreview">
           <div style="text-align:center;color:#CBD5E0;padding:40px;font-size:13px;">미리보기 생성 버튼을 눌러주세요</div>
         </div>
       </div>
-      <!-- CI -->
       <div class="doc-box">
         <div class="doc-title">COMMERCIAL INVOICE</div>
-        <div class="doc-inner" id="ciPreview">
-          <div style="text-align:center;color:#CBD5E0;padding:40px;font-size:13px;"></div>
-        </div>
+        <div class="doc-inner" id="ciPreview"><div></div></div>
       </div>
     </div>
   </div>
@@ -253,26 +284,188 @@ body{font-family:'Noto Sans KR',sans-serif;background:#F0F4F8;color:#2D3748;min-
 </div>
 
 <script>
+const GEMINI_KEY = 'AIzaSyD4vyx_6IXuOSJ2XgJnSdhDHNTdilsc_3U';
 let rowCount = 0;
 
-function addRow() {
+// ── 드래그 앤 드롭 ──
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+zone.addEventListener('drop', e => {
+  e.preventDefault(); zone.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) handleFile(f);
+});
+
+// ── 파일 처리 메인 ──
+async function handleFile(file) {
+  if (!file) return;
+  showStatus('⏳ 파일 읽는 중... ' + file.name, true);
+
+  try {
+    let text = '';
+    const ext = file.name.split('.').pop().toLowerCase();
+
+    if (ext === 'csv' || ext === 'txt') {
+      text = await file.text();
+    } else if (ext === 'xlsx' || ext === 'xls') {
+      text = await readExcel(file);
+    } else {
+      showStatus('⚠️ 지원되지 않는 형식입니다. Excel(.xlsx), CSV, TXT 파일을 올려주세요.', false);
+      return;
+    }
+
+    showStatus('🤖 AI가 내용을 분석 중입니다...', true);
+    await parseWithGemini(text);
+
+  } catch (e) {
+    showStatus('❌ 파일 처리 중 오류가 발생했습니다: ' + e.message, false);
+  }
+}
+
+// ── Excel 읽기 ──
+async function readExcel(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const wb = XLSX.read(e.target.result, { type: 'binary' });
+        let allText = '';
+        wb.SheetNames.forEach(name => {
+          const ws = wb.Sheets[name];
+          allText += `\n[Sheet: ${name}]\n`;
+          allText += XLSX.utils.sheet_to_csv(ws);
+        });
+        resolve(allText);
+      } catch(err) { reject(err); }
+    };
+    reader.onerror = reject;
+    reader.readAsBinaryString(file);
+  });
+}
+
+// ── Gemini API 파싱 ──
+async function parseWithGemini(rawText) {
+  const prompt = `다음은 물류 회사가 고객으로부터 받은 인보이스 또는 패킹리스트 파일의 내용입니다.
+이 내용에서 아래 JSON 형식으로 정보를 추출해주세요.
+찾을 수 없는 항목은 빈 문자열("")로 두세요.
+품목(items)은 최대한 모두 추출해주세요.
+
+{
+  "shipper": "수출자/발송인 이름과 주소 (여러줄 가능)",
+  "consignee": "수하인 이름과 주소 (여러줄 가능)",
+  "notify": "Notify Party",
+  "invoiceNo": "인보이스 번호 및 날짜",
+  "pol": "선적항 (Port of Loading)",
+  "pod": "목적지 (Final Destination)",
+  "carrier": "선사명",
+  "sailing": "출항 예정일",
+  "terms": "결제 및 인도 조건",
+  "origin": "원산지",
+  "remarks": "특이사항",
+  "totalPkg": "총 포장 수량",
+  "totalCBM": "총 CBM",
+  "lcNo": "L/C 번호",
+  "items": [
+    {
+      "marks": "marks & numbers",
+      "desc": "품목 설명 (영문)",
+      "ct": 수량(CT, 숫자),
+      "pcs": 수량(PCS, 숫자),
+      "nw": 순중량(kg, 숫자),
+      "gw": 총중량(kg, 숫자),
+      "unitPrice": 단가(USD, 숫자),
+      "amount": 금액(USD, 숫자)
+    }
+  ]
+}
+
+파일 내용:
+${rawText.substring(0, 8000)}
+
+JSON만 출력하고 다른 텍스트는 없이 응답해주세요.`;
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 4096 }
+      })
+    }
+  );
+
+  if (!res.ok) throw new Error('Gemini API 오류: ' + res.status);
+
+  const data = await res.json();
+  let jsonStr = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+  // JSON 추출
+  const match = jsonStr.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('AI 응답에서 JSON을 찾을 수 없습니다.');
+
+  const parsed = JSON.parse(match[0]);
+  fillForm(parsed);
+  showStatus('✅ AI 파싱 완료! 내용을 확인하고 필요한 부분을 수정해주세요.', false);
+}
+
+// ── 폼 채우기 ──
+function fillForm(data) {
+  const fields = ['shipper','consignee','notify','invoiceNo','pol','pod','carrier','sailing','terms','origin','remarks','totalPkg','totalCBM','lcNo'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && data[id]) {
+      el.value = data[id];
+      el.classList.add('ai-filled');
+    }
+  });
+
+  // 품목
+  if (data.items && data.items.length > 0) {
+    document.getElementById('itemsBody').innerHTML = '';
+    rowCount = 0;
+    data.items.forEach(item => addRow(item));
+  }
+
+  document.getElementById('aiBadge1').style.display = 'inline-block';
+  document.getElementById('aiBadge2').style.display = 'inline-block';
+}
+
+// ── 상태 표시 ──
+function showStatus(msg, loading) {
+  const box = document.getElementById('statusBox');
+  const txt = document.getElementById('statusText');
+  box.classList.add('show');
+  txt.innerHTML = loading ? `<span class="spinner"></span>${msg}` : msg;
+}
+
+// ── 품목 행 추가 ──
+function addRow(data) {
   rowCount++;
+  const id = rowCount;
   const tbody = document.getElementById('itemsBody');
   const tr = document.createElement('tr');
-  tr.id = 'row_' + rowCount;
+  tr.id = 'row_' + id;
+
+  const v = (val) => val ?? '';
+  const ai = data ? ' ai-filled' : '';
+
   tr.innerHTML = `
-    <td class="num">${rowCount}</td>
-    <td><input type="text" placeholder="Marks & No." onchange="calcRow(${rowCount})"/></td>
-    <td><input type="text" placeholder="품목명 (영문)" onchange="calcRow(${rowCount})"/></td>
-    <td><input type="number" placeholder="0" min="0" onchange="calcTotals()" style="text-align:center;"/></td>
-    <td><input type="number" placeholder="0" min="0" onchange="calcTotals()" style="text-align:center;"/></td>
-    <td><input type="number" placeholder="0.00" min="0" step="0.01" onchange="calcTotals()" style="text-align:center;"/></td>
-    <td><input type="number" placeholder="0.00" min="0" step="0.01" onchange="calcTotals()" style="text-align:center;"/></td>
-    <td><input type="number" placeholder="0.00" min="0" step="0.01" onchange="calcRow(${rowCount})" style="text-align:center;"/></td>
-    <td><input type="number" class="auto" readonly placeholder="자동계산" style="text-align:center;background:#F7FAFC;"/></td>
-    <td><button class="del-btn" onclick="delRow(${rowCount})">✕</button></td>
+    <td class="num">${id}</td>
+    <td><input type="text" class="${ai}" value="${v(data?.marks)}" placeholder="Marks & No."/></td>
+    <td><input type="text" class="${ai}" value="${v(data?.desc)}" placeholder="품목명 (영문)"/></td>
+    <td><input type="number" class="${ai}" value="${v(data?.ct)}" min="0" style="text-align:center;" onchange="calcTotals()"/></td>
+    <td><input type="number" class="${ai}" value="${v(data?.pcs)}" min="0" style="text-align:center;" onchange="calcRow(${id})"/></td>
+    <td><input type="number" class="${ai}" value="${v(data?.nw)}" min="0" step="0.01" style="text-align:center;" onchange="calcTotals()"/></td>
+    <td><input type="number" class="${ai}" value="${v(data?.gw)}" min="0" step="0.01" style="text-align:center;" onchange="calcTotals()"/></td>
+    <td><input type="number" class="${ai}" value="${v(data?.unitPrice)}" min="0" step="0.01" style="text-align:center;" onchange="calcRow(${id})"/></td>
+    <td><input type="number" class="auto" value="${v(data?.amount)}" readonly style="text-align:center;background:#F7FAFC;"/></td>
+    <td><button class="del-btn" onclick="delRow(${id})">✕</button></td>
   `;
   tbody.appendChild(tr);
+  calcTotals();
 }
 
 function delRow(id) {
@@ -286,29 +479,29 @@ function calcRow(id) {
   if (!row) return;
   const inputs = row.querySelectorAll('input[type="number"]');
   const pcs = parseFloat(inputs[1].value) || 0;
-  const unitPrice = parseFloat(inputs[4].value) || 0;
-  inputs[5].value = (pcs * unitPrice).toFixed(2);
+  const up  = parseFloat(inputs[4].value) || 0;
+  inputs[5].value = (pcs * up).toFixed(2);
   calcTotals();
 }
 
 function calcTotals() {
   const rows = document.querySelectorAll('#itemsBody tr');
-  let totalCT=0, totalPCS=0, totalNW=0, totalGW=0, totalAmt=0;
+  let tCT=0,tPCS=0,tNW=0,tGW=0,tAmt=0;
   rows.forEach(row => {
-    const inputs = row.querySelectorAll('input[type="number"]');
-    if (inputs.length >= 6) {
-      totalCT  += parseFloat(inputs[0].value) || 0;
-      totalPCS += parseFloat(inputs[1].value) || 0;
-      totalNW  += parseFloat(inputs[2].value) || 0;
-      totalGW  += parseFloat(inputs[3].value) || 0;
-      totalAmt += parseFloat(inputs[5].value) || 0;
+    const n = row.querySelectorAll('input[type="number"]');
+    if (n.length >= 6) {
+      tCT  += parseFloat(n[0].value)||0;
+      tPCS += parseFloat(n[1].value)||0;
+      tNW  += parseFloat(n[2].value)||0;
+      tGW  += parseFloat(n[3].value)||0;
+      tAmt += parseFloat(n[5].value)||0;
     }
   });
-  document.getElementById('totalCT').textContent  = totalCT  || 0;
-  document.getElementById('totalPCS').textContent = totalPCS || 0;
-  document.getElementById('totalNW').textContent  = totalNW.toFixed(2);
-  document.getElementById('totalGW').textContent  = totalGW.toFixed(2);
-  document.getElementById('totalAmt').textContent = '$' + totalAmt.toFixed(2);
+  document.getElementById('totalCT').textContent  = tCT||0;
+  document.getElementById('totalPCS').textContent = tPCS||0;
+  document.getElementById('totalNW').textContent  = tNW.toFixed(2);
+  document.getElementById('totalGW').textContent  = tGW.toFixed(2);
+  document.getElementById('totalAmt').textContent = '$'+tAmt.toFixed(2);
 }
 
 function clearItems() {
@@ -318,8 +511,9 @@ function clearItems() {
   calcTotals();
 }
 
-function getVal(id) { return document.getElementById(id)?.value?.trim() || ''; }
+function getVal(id) { return document.getElementById(id)?.value?.trim()||''; }
 
+// ── 미리보기 생성 ──
 function generatePreview() {
   const shipper   = getVal('shipper');
   const consignee = getVal('consignee');
@@ -338,129 +532,74 @@ function generatePreview() {
   const lcNo      = getVal('lcNo');
   const consigned = getVal('consigned');
 
-  // 품목 수집
   const rows = document.querySelectorAll('#itemsBody tr');
-  let itemsHTML_PL = '', itemsHTML_CI = '';
-  let tCT=0, tPCS=0, tNW=0, tGW=0, tAmt=0;
+  let plItems='', ciItems='';
+  let tCT=0,tPCS=0,tNW=0,tGW=0,tAmt=0;
 
-  rows.forEach((row, idx) => {
-    const allInputs = row.querySelectorAll('input');
-    const marks     = allInputs[0]?.value || '';
-    const desc      = allInputs[1]?.value || '';
-    const numInputs = row.querySelectorAll('input[type="number"]');
-    const ct   = parseFloat(numInputs[0]?.value) || 0;
-    const pcs  = parseFloat(numInputs[1]?.value) || 0;
-    const nw   = parseFloat(numInputs[2]?.value) || 0;
-    const gw   = parseFloat(numInputs[3]?.value) || 0;
-    const up   = parseFloat(numInputs[4]?.value) || 0;
-    const amt  = parseFloat(numInputs[5]?.value) || (pcs * up);
-    tCT+=ct; tPCS+=pcs; tNW+=nw; tGW+=gw; tAmt+=amt;
+  rows.forEach(row => {
+    const ti = row.querySelectorAll('input[type="text"]');
+    const ni = row.querySelectorAll('input[type="number"]');
+    const marks = ti[0]?.value||'';
+    const desc  = ti[1]?.value||'';
+    const ct=parseFloat(ni[0]?.value)||0, pcs=parseFloat(ni[1]?.value)||0;
+    const nw=parseFloat(ni[2]?.value)||0, gw=parseFloat(ni[3]?.value)||0;
+    const up=parseFloat(ni[4]?.value)||0, amt=parseFloat(ni[5]?.value)||(pcs*up);
+    tCT+=ct;tPCS+=pcs;tNW+=nw;tGW+=gw;tAmt+=amt;
 
-    itemsHTML_PL += `<tr>
-      <td class="left">${marks}</td>
-      <td class="left">${desc}</td>
-      <td>${ct || ''}</td><td>CT</td>
-      <td>${pcs || ''}</td><td>PCS</td>
-      <td>${nw ? nw.toFixed(2) : ''}</td>
-      <td>${gw ? gw.toFixed(2) : ''}</td>
-    </tr>`;
-    itemsHTML_CI += `<tr>
-      <td class="left">${marks}</td>
-      <td class="left">${desc}</td>
-      <td>${pcs || ''}</td><td>PCS</td>
-      <td>${up ? '$'+up.toFixed(2) : ''}</td>
-      <td>${amt ? '$'+amt.toFixed(2) : ''}</td>
-    </tr>`;
+    plItems+=`<tr><td class="left">${marks}</td><td class="left">${desc}</td><td>${ct||''}</td><td>CT</td><td>${pcs||''}</td><td>PCS</td><td>${nw?nw.toFixed(2):''}</td><td>${gw?gw.toFixed(2):''}</td></tr>`;
+    ciItems+=`<tr><td class="left">${marks}</td><td class="left">${desc}</td><td>${pcs||''}</td><td>PCS</td><td>${up?'$'+up.toFixed(2):''}</td><td>${amt?'$'+amt.toFixed(2):''}</td></tr>`;
   });
 
-  const infoBlock = (label, val, full=false) => `
-    <div class="info-cell${full?' full':''}">
-      <div class="lbl">${label}</div>
-      <div class="val">${(val||'—').replace(/\n/g,'<br/>')}</div>
-    </div>`;
+  const ic = (lbl,val,full=false) => `<div class="info-cell${full?' full':''}"><div class="lbl">${lbl}</div><div class="val">${(val||'—')}</div></div>`;
 
-  const plHTML = `
-    <div class="info-grid">
-      ${infoBlock('1. Shipper / Exporter', shipper)}
-      ${infoBlock('8. Invoice No. & Date', invoiceNo)}
-      ${infoBlock('2. Consignee', consignee)}
-      ${infoBlock('9. L/C No. & Date', lcNo||'N/A')}
-      ${infoBlock('3. Notify Party', notify)}
-      ${infoBlock('11. Remarks', remarks||'—')}
-      ${infoBlock('4. Port of Loading', pol)}
-      ${infoBlock('5. Final Destination', pod)}
-      ${infoBlock('6. Carrier', carrier||'—')}
-      ${infoBlock('7. Sailing on or about', sailing||'—')}
-      ${infoBlock('10. Terms of Delivery & Payment', terms, true)}
-    </div>
+  const common = `
+    ${ic('1. Shipper / Exporter', shipper.replace(/\n/g,'<br/>'))}
+    ${ic('8. Invoice No. & Date', invoiceNo)}
+    ${ic('2. Consignee', consignee.replace(/\n/g,'<br/>'))}
+    ${ic('9. L/C No. & Date', lcNo||'N/A')}
+    ${ic('3. Notify Party', notify)}
+    ${ic('11. Remarks', remarks||'—')}
+    ${ic('4. Port of Loading', pol)}
+    ${ic('5. Final Destination', pod)}
+    ${ic('6. Carrier', carrier||'—')}
+    ${ic('7. Sailing on or about', sailing||'—')}
+    ${ic('10. Terms of Delivery & Payment', terms, true)}`;
+
+  const summary_pl = `<div class="summary-box">
+    <strong>* TOTAL PACKAGE :</strong> ${totalPkg||tCT+' CT'}<br/>
+    <strong>* TOTAL NET WEIGHT :</strong> ${tNW.toFixed(2)} KG<br/>
+    <strong>* TOTAL GROSS WEIGHT :</strong> ${tGW.toFixed(2)} KG<br/>
+    <strong>* TOTAL CBM :</strong> ${totalCBM||'—'} CBM<br/>
+    <strong>* COUNTRY OF ORIGIN :</strong> ${origin}<br/>
+    <strong>* CONSIGNED :</strong> ${consigned}<br/>
+    <strong>* ${freight}</strong></div>`;
+
+  const summary_ci = `<div class="summary-box">
+    <strong>* TOTAL AMOUNT :</strong> USD ${tAmt.toFixed(2)}<br/>
+    <strong>* COUNTRY OF ORIGIN :</strong> ${origin}<br/>
+    <strong>* CONSIGNED :</strong> ${consigned}<br/>
+    <strong>* ${freight}</strong></div>`;
+
+  document.getElementById('plPreview').innerHTML = `
+    <div class="info-grid">${common}</div>
     <table class="preview-table">
-      <thead><tr>
-        <th>Marks & Numbers</th><th>Description</th>
-        <th>Qty</th><th>Unit</th>
-        <th>Qty</th><th>Unit</th>
-        <th>Net W.</th><th>Gross W.</th>
-      </tr></thead>
-      <tbody>${itemsHTML_PL}</tbody>
-      <tfoot><tr class="total-row">
-        <td colspan="2" style="text-align:right;">TOTAL</td>
-        <td>${tCT}</td><td>CT</td>
-        <td>${tPCS}</td><td>PCS</td>
-        <td>${tNW.toFixed(2)}</td><td>${tGW.toFixed(2)}</td>
-      </tr></tfoot>
-    </table>
-    <div class="summary-box">
-      <strong>* TOTAL PACKAGE :</strong> ${totalPkg || tCT + ' CT'}<br/>
-      <strong>* TOTAL NET WEIGHT :</strong> ${tNW.toFixed(2)} KG<br/>
-      <strong>* TOTAL GROSS WEIGHT :</strong> ${tGW.toFixed(2)} KG<br/>
-      <strong>* TOTAL CBM :</strong> ${totalCBM || '—'} CBM<br/>
-      <strong>* COUNTRY OF ORIGIN :</strong> ${origin}<br/>
-      <strong>* CONSIGNED :</strong> ${consigned}<br/>
-      <strong>* ${freight}</strong>
-    </div>`;
+      <thead><tr><th>Marks & Numbers</th><th>Description</th><th>Qty</th><th>Unit</th><th>Qty</th><th>Unit</th><th>Net W.</th><th>Gross W.</th></tr></thead>
+      <tbody>${plItems}</tbody>
+      <tfoot><tr class="total-row"><td colspan="2" style="text-align:right;">TOTAL</td><td>${tCT}</td><td>CT</td><td>${tPCS}</td><td>PCS</td><td>${tNW.toFixed(2)}</td><td>${tGW.toFixed(2)}</td></tr></tfoot>
+    </table>${summary_pl}`;
 
-  const ciHTML = `
-    <div class="info-grid">
-      ${infoBlock('1. Shipper / Exporter', shipper)}
-      ${infoBlock('8. Invoice No. & Date', invoiceNo)}
-      ${infoBlock('2. Consignee', consignee)}
-      ${infoBlock('9. L/C No. & Date', lcNo||'N/A')}
-      ${infoBlock('3. Notify Party', notify)}
-      ${infoBlock('11. Remarks', remarks||'—')}
-      ${infoBlock('4. Port of Loading', pol)}
-      ${infoBlock('5. Final Destination', pod)}
-      ${infoBlock('6. Carrier', carrier||'—')}
-      ${infoBlock('7. Sailing on or about', sailing||'—')}
-      ${infoBlock('10. Terms of Delivery & Payment', terms, true)}
-    </div>
+  document.getElementById('ciPreview').innerHTML = `
+    <div class="info-grid">${common}</div>
     <table class="preview-table">
-      <thead><tr>
-        <th>Marks & Numbers</th><th>Description</th>
-        <th>Qty</th><th>Unit</th>
-        <th>Unit Price</th><th>Amount</th>
-      </tr></thead>
-      <tbody>${itemsHTML_CI}</tbody>
-      <tfoot><tr class="total-row">
-        <td colspan="3" style="text-align:right;">TOTAL</td>
-        <td>${tPCS} PCS</td>
-        <td></td>
-        <td>$${tAmt.toFixed(2)}</td>
-      </tr></tfoot>
-    </table>
-    <div class="summary-box">
-      <strong>* TOTAL AMOUNT :</strong> USD ${tAmt.toFixed(2)}<br/>
-      <strong>* COUNTRY OF ORIGIN :</strong> ${origin}<br/>
-      <strong>* CONSIGNED :</strong> ${consigned}<br/>
-      <strong>* ${freight}</strong>
-    </div>`;
+      <thead><tr><th>Marks & Numbers</th><th>Description</th><th>Qty</th><th>Unit</th><th>Unit Price</th><th>Amount</th></tr></thead>
+      <tbody>${ciItems}</tbody>
+      <tfoot><tr class="total-row"><td colspan="3" style="text-align:right;">TOTAL</td><td>${tPCS} PCS</td><td></td><td>$${tAmt.toFixed(2)}</td></tr></tfoot>
+    </table>${summary_ci}`;
 
-  document.getElementById('plPreview').innerHTML = plHTML;
-  document.getElementById('ciPreview').innerHTML = ciHTML;
-
-  // 미리보기로 스크롤
   document.querySelector('.preview-section').scrollIntoView({behavior:'smooth'});
 }
 
-// 초기 품목 3줄 추가
+// 초기 빈 행 3개
 addRow(); addRow(); addRow();
 </script>
 </body>
