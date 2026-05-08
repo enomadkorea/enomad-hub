@@ -417,12 +417,12 @@ async function parseWithGemini(rawText) {
 }
 
 파일 내용:
-${rawText.substring(0, 8000)}
+${rawText.substring(0, 5000)}
 
 JSON만 출력하고 다른 텍스트는 없이 응답해주세요.`;
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -433,7 +433,12 @@ JSON만 출력하고 다른 텍스트는 없이 응답해주세요.`;
     }
   );
 
-  if (!res.ok) throw new Error('Gemini API 오류: ' + res.status);
+  if (!res.ok) {
+    const errBody = await res.json().catch(()=>({}));
+    const msg = errBody?.error?.message || res.status;
+    if (res.status === 429) throw new Error('요청 한도 초과(429). 1분 후 다시 시도해주세요.');
+    throw new Error('Gemini API 오류: ' + msg);
+  }
 
   const data = await res.json();
   let jsonStr = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
