@@ -285,7 +285,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#F0F4F8;color:#2D3748;min-
 </div>
 
 <script>
-const GEMINI_KEY = 'AIzaSyD4vyx_6IXuOSJ2XgJnSdhDHNTdilsc_3U';
+const GEMINI_KEY = 'AIzaSyBMYRt7ZazLxASqQIkKYxisd_r2CcF-B_M';
 let rowCount = 0;
 
 // pdf.js worker 설정
@@ -422,7 +422,7 @@ ${rawText.substring(0, 5000)}
 JSON만 출력하고 다른 텍스트는 없이 응답해주세요.`;
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
