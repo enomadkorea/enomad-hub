@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>메일 템플릿 — ENOMAD HUB</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy: #0A1F44;
+  --blue: #0066CC;
+  --bg: #F0F4F8;
+  --white: #fff;
+  --border: #E2E8F0;
+  --text: #2D3748;
+  --sub: #718096;
+  --green: #16A34A;
+  --green-bg: #F0FDF4;
+  --sidebar-w: 260px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+
+/* 헤더 */
+.top-bar{background:var(--navy);padding:12px 24px;display:flex;align-items:center;gap:16px;}
+.top-bar .back{color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:5px;}
+.top-bar .back:hover{color:#fff;}
+.top-bar .title{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;color:#fff;letter-spacing:0.5px;}
+.top-bar .title span{color:#60A5FA;}
+
+/* 레이아웃 */
+.layout{display:flex;flex:1;min-height:0;}
+
+/* 사이드바 */
+.sidebar{width:var(--sidebar-w);background:var(--navy);padding:16px 0;flex-shrink:0;overflow-y:auto;}
+.sidebar-label{font-size:10px;font-weight:700;color:rgba(255,255,255,0.35);letter-spacing:1.5px;padding:8px 20px 4px;text-transform:uppercase;}
+.tmpl-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;transition:background .15s;border-left:3px solid transparent;}
+.tmpl-item:hover{background:rgba(255,255,255,0.06);}
+.tmpl-item.active{background:rgba(255,255,255,0.1);border-left-color:#4a8cff;}
+.tmpl-item .tmpl-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
+.tmpl-item .tmpl-info{flex:1;min-width:0;}
+.tmpl-item .tmpl-name{font-size:13px;color:rgba(255,255,255,0.85);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tmpl-item .tmpl-tag{font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px;}
+.btn-new-tmpl{display:flex;align-items:center;gap:8px;margin:12px 16px 0;padding:9px 14px;background:rgba(255,255,255,0.08);border:1px dashed rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;color:rgba(255,255,255,0.6);font-size:13px;font-family:'Noto Sans KR',sans-serif;transition:all .15s;width:calc(100% - 32px);}
+.btn-new-tmpl:hover{background:rgba(255,255,255,0.12);color:#fff;}
+
+/* 메인 */
+.main{flex:1;overflow-y:auto;padding:24px;}
+
+/* 빈 상태 */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:12px;color:var(--sub);}
+.empty-state .empty-icon{font-size:48px;}
+.empty-state h3{font-size:16px;font-weight:600;color:var(--text);}
+.empty-state p{font-size:13px;}
+
+/* 편집/미리보기 영역 */
+.editor-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:1200px;}
+.panel{background:var(--white);border-radius:12px;border:1px solid var(--border);overflow:hidden;}
+.panel-header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.panel-title{font-size:13px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px;}
+.panel-body{padding:20px;}
+
+/* 폼 */
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
+.form-group input,.form-group textarea,.form-group select{width:100%;border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:13px;font-family:'Noto Sans KR',sans-serif;color:var(--text);outline:none;transition:border-color .15s;}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,102,204,0.08);}
+.form-group textarea{resize:vertical;min-height:80px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* 선적 목록 테이블 */
+.cargo-table{width:100%;border-collapse:collapse;margin-bottom:8px;}
+.cargo-table th{background:var(--navy);color:#fff;font-size:11px;padding:7px 8px;text-align:left;font-weight:600;}
+.cargo-table td{padding:5px 6px;border-bottom:1px solid var(--border);}
+.cargo-table td input{width:100%;border:1px solid var(--border);border-radius:4px;padding:5px 7px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;}
+.cargo-table td input:focus{border-color:var(--blue);}
+.del-btn{background:none;border:none;color:#FC8181;cursor:pointer;font-size:14px;padding:2px 5px;}
+.btn-add-row{background:#EBF4FF;color:var(--blue);border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+
+/* 버튼 */
+.btn-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.btn{padding:9px 18px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif;transition:all .15s;}
+.btn-primary{background:var(--navy);color:#fff;}
+.btn-primary:hover{background:#1B3A6B;}
+.btn-copy{background:var(--blue);color:#fff;}
+.btn-copy:hover{background:#0052A3;}
+.btn-save{background:var(--green-bg);color:var(--green);border:1px solid #86EFAC;}
+.btn-danger{background:#FFF5F5;color:#E53E3E;}
+
+/* 미리보기 */
+.preview-wrap{background:#f8fafc;border-radius:8px;border:1px solid var(--border);padding:20px;font-size:13px;line-height:1.9;white-space:pre-wrap;word-break:break-all;min-height:400px;font-family:'Noto Sans KR',sans-serif;}
+.preview-wrap .placeholder{color:#CBD5E0;font-style:italic;}
+
+/* 복사 완료 토스트 */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:999;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* 섹션 구분선 */
+.divider{border:none;border-top:1px solid var(--border);margin:14px 0;}
+
+@media(max-width:900px){
+  .editor-layout{grid-template-columns:1fr;}
+  .sidebar{width:220px;}
+}
+@media(max-width:640px){
+  .layout{flex-direction:column;}
+  .sidebar{width:100%;padding:8px 0;}
+  .form-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a class="back" href="../">← ENOMAD HUB</a>
+  <div class="title"><span>ENOMAD</span> · 메일 템플릿</div>
+</div>
+
+<div class="layout">
+
+  <!-- 사이드바 -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-label">템플릿 목록</div>
+    <div id="tmplList"></div>
+    <button class="btn-new-tmpl" onclick="newTemplate()">＋ 새 템플릿 추가</button>
+  </div>
+
+  <!-- 메인 -->
+  <div class="main" id="mainArea">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">✉️</div>
+      <h3>템플릿을 선택하거나 새로 만들어보세요</h3>
+      <p>반복되는 메일을 템플릿으로 저장해두면 빠르게 발송할 수 있어요</p>
+    </div>
+    <div id="editorWrap" style="display:none;">
+      <div class="editor-layout">
+
+        <!-- 편집 패널 -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">✏️ 내용 입력</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-save" onclick="saveTemplate()">💾 저장</button>
+              <button class="btn btn-danger" onclick="deleteTemplate()">삭제</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label>템플릿 이름</label>
+              <input type="text" id="tmplNameInput" placeholder="예: RMK FCL 견적 안내"/>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>수신자</label>
+                <input type="text" id="f_to" placeholder="예: 고상무님 / RMK"/>
+              </div>
+              <div class="form-group">
+                <label>제목 (참고용)</label>
+                <input type="text" id="f_subject" placeholder="예: 해상 FCL 견적 안내"/>
+              </div>
+            </div>
+
+            <hr class="divider"/>
+            <div class="sidebar-label" style="padding:0 0 8px;color:var(--sub);">1. 스케줄 및 RATE</div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>VSL / VOY</label>
+                <input type="text" id="f_vsl" placeholder="예: ONE FANTASTIC 0009E"/>
+              </div>
+              <div class="form-group">
+                <label>선사 (Carrier)</label>
+                <input type="text" id="f_carrier" placeholder="예: HMM"/>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>DOC CLS</label>
+                <input type="text" id="f_doc" placeholder="예: 5/15 10:00"/>
+              </div>
+              <div class="form-group">
+                <label>CY CLS</label>
+                <input type="text" id="f_cy" placeholder="예: 5/19 08:00"/>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>BUS ETD</label>
+                <input type="text" id="f_etd" placeholder="예: 5/20"/>
+              </div>
+              <div class="form-group">
+                <label>ETA (도착항)</label>
+                <input type="text" id="f_eta" placeholder="예: 6/3"/>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>목적항</label>
+                <input type="text" id="f_pod" placeholder="예: LONG BEACH, CA"/>
+              </div>
+              <div class="form-group">
+                <label>40HC 운임 (USD)</label>
+                <input type="text" id="f_rate40" placeholder="예: $2,930"/>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>운임 유효기간</label>
+                <input type="text" id="f_validity" placeholder="예: 5/1~5/14"/>
+              </div>
+              <div class="form-group">
+                <label>운임 포함 항목</label>
+                <input type="text" id="f_rateNote" placeholder="예: RATE INCLUDING EFS, AMS $30 포함"/>
+              </div>
+            </div>
+
+            <hr class="divider"/>
+            <div class="sidebar-label" style="padding:0 0 8px;color:var(--sub);">2. 수출 부대비용</div>
+            <div class="form-group">
+              <label>부대비용 내역</label>
+              <textarea id="f_local" placeholder="예: EXPORT LOCAL CHG 40&quot; : 380,000 KRW /BL&#10;CFS LOADING : 330,000 KRW&#10;SHORING : 99,000 KRW /40&quot;&#10;CFS SHUTTLE : 172,000 KRW /40&quot;&#10;선반입비 : AT COST (IF 발생시)"></textarea>
+            </div>
+            <div class="form-group">
+              <label>총 견적 요약</label>
+              <input type="text" id="f_total" placeholder="예: $2,930 + KRW 981,000 + 실비"/>
+            </div>
+
+            <hr class="divider"/>
+            <div class="sidebar-label" style="padding:0 0 8px;color:var(--sub);">3. 선적 진행 예상 목록</div>
+            <table class="cargo-table" id="cargoTable">
+              <thead>
+                <tr>
+                  <th>브랜드 / 품목</th>
+                  <th>수량 (PLT)</th>
+                  <th>비고</th>
+                  <th style="width:30px;"></th>
+                </tr>
+              </thead>
+              <tbody id="cargoBody"></tbody>
+            </table>
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+              <button class="btn-add-row" onclick="addCargoRow()">+ 품목 추가</button>
+              <div class="form-group" style="margin:0;flex:1;">
+                <input type="text" id="f_totalPlt" placeholder="총 PLT / 컨테이너 (예: 16 PLT / 40HQ)"/>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>추가 메모 / 특이사항</label>
+              <textarea id="f_memo" placeholder="예: ENOMAD 1PLT는 RMK 같이 통관 후 정산 요청"></textarea>
+            </div>
+
+            <div class="btn-row">
+              <button class="btn btn-primary" onclick="generatePreview()">🔄 미리보기 생성</button>
+              <button class="btn btn-copy" onclick="copyMail()">📋 메일 복사</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 미리보기 패널 -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">📧 미리보기</div>
+            <button class="btn btn-copy" onclick="copyMail()" style="padding:6px 14px;font-size:12px;">복사</button>
+          </div>
+          <div class="panel-body">
+            <div class="preview-wrap" id="previewWrap">
+              <span class="placeholder">← 내용 입력 후 [미리보기 생성]을 눌러주세요</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">📋 메일 내용이 복사되었습니다!</div>
+
+<script>
+// ── 기본 템플릿 데이터 ──
+const DEFAULT_TEMPLATES = [
+  {
+    id: 'rmk-fcl-001',
+    name: 'RMK FCL 견적 안내',
+    tag: '해상 · FCL · 미국',
+    icon: '🚢',
+    data: {
+      f_to: '고상무님 / RMK',
+      f_subject: '해상 FCL 견적 안내',
+      f_vsl: 'ONE FANTASTIC 0009E',
+      f_carrier: 'HMM',
+      f_doc: '5/15 10:00',
+      f_cy: '5/19 08:00',
+      f_etd: '5/20',
+      f_eta: '6/3',
+      f_pod: 'LONG BEACH, CA',
+      f_rate40: '$2,930',
+      f_validity: '5/1~5/14 (5/15 이후 미정)',
+      f_rateNote: 'RATE INCLUDING EFS, AMS $30 포함',
+      f_local: 'EXPORT LOCAL CHG 40" : 380,000 KRW /BL\nCFS LOADING : 40CBM MIN. : 330,000 KRW\nSHORING : 99,000 KRW /40"\nCFS SHUTTLE : 172,000 KRW /40"\n선반입비 : AT COST (IF 발생시)',
+      f_total: '$2,930 + KRW 981,000 + 실비',
+      f_totalPlt: '16 PLT / 40HQ',
+      f_memo: 'ENOMAD 1PLT (차량 거치대) — RMK 같이 통관 후 정산 괜찮을까요?',
+      cargo: [
+        { brand: 'SILICON2',   plt: '10', note: '' },
+        { brand: 'DR ALTHEA',  plt: '1',  note: '' },
+        { brand: 'AMUTY',      plt: '4',  note: '' },
+        { brand: 'ENOMAD',     plt: '1',  note: '차량 거치대 — 통관 후 정산' },
+      ]
+    }
+  }
+];
+
+let templates = [];
+let currentId = null;
+
+// ── 초기화 ──
+function init() {
+  const saved = localStorage.getItem('enomad_mail_templates');
+  if (saved) {
+    try { templates = JSON.parse(saved); } catch(e) { templates = []; }
+  }
+  if (templates.length === 0) {
+    templates = JSON.parse(JSON.stringify(DEFAULT_TEMPLATES));
+    save();
+  }
+  renderSidebar();
+  if (templates.length > 0) loadTemplate(templates[0].id);
+}
+
+function save() {
+  localStorage.setItem('enomad_mail_templates', JSON.stringify(templates));
+}
+
+// ── 사이드바 렌더 ──
+function renderSidebar() {
+  const list = document.getElementById('tmplList');
+  list.innerHTML = templates.map(t => `
+    <div class="tmpl-item ${t.id === currentId ? 'active' : ''}" onclick="loadTemplate('${t.id}')">
+      <div class="tmpl-icon">${t.icon || '✉️'}</div>
+      <div class="tmpl-info">
+        <div class="tmpl-name">${t.name}</div>
+        <div class="tmpl-tag">${t.tag || ''}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── 템플릿 불러오기 ──
+function loadTemplate(id) {
+  currentId = id;
+  const t = templates.find(x => x.id === id);
+  if (!t) return;
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('editorWrap').style.display = 'block';
+
+  document.getElementById('tmplNameInput').value = t.name || '';
+  const fields = ['f_to','f_subject','f_vsl','f_carrier','f_doc','f_cy','f_etd','f_eta','f_pod','f_rate40','f_validity','f_rateNote','f_local','f_total','f_totalPlt','f_memo'];
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = t.data?.[id] || '';
+  });
+
+  // 화물 목록
+  document.getElementById('cargoBody').innerHTML = '';
+  cargoRowCount = 0;
+  (t.data?.cargo || []).forEach(row => addCargoRow(row));
+
+  renderSidebar();
+  generatePreview();
+}
+
+// ── 새 템플릿 ──
+function newTemplate() {
+  const id = 'tmpl_' + Date.now();
+  const t = { id, name: '새 템플릿', tag: '', icon: '✉️', data: {} };
+  templates.push(t);
+  save();
+  loadTemplate(id);
+}
+
+// ── 저장 ──
+function saveTemplate() {
+  const t = templates.find(x => x.id === currentId);
+  if (!t) return;
+  t.name = document.getElementById('tmplNameInput').value || '템플릿';
+  const fields = ['f_to','f_subject','f_vsl','f_carrier','f_doc','f_cy','f_etd','f_eta','f_pod','f_rate40','f_validity','f_rateNote','f_local','f_total','f_totalPlt','f_memo'];
+  if (!t.data) t.data = {};
+  fields.forEach(id => { t.data[id] = document.getElementById(id)?.value || ''; });
+
+  // 화물 목록 저장
+  t.data.cargo = [];
+  document.querySelectorAll('#cargoBody tr').forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    if (inputs.length >= 2) {
+      t.data.cargo.push({ brand: inputs[0].value, plt: inputs[1].value, note: inputs[2]?.value || '' });
+    }
+  });
+
+  save();
+  renderSidebar();
+  showToast('💾 저장되었습니다!');
+}
+
+// ── 삭제 ──
+function deleteTemplate() {
+  if (!confirm('이 템플릿을 삭제하시겠습니까?')) return;
+  templates = templates.filter(x => x.id !== currentId);
+  save();
+  currentId = null;
+  document.getElementById('editorWrap').style.display = 'none';
+  document.getElementById('emptyState').style.display = 'flex';
+  renderSidebar();
+}
+
+// ── 화물 행 ──
+let cargoRowCount = 0;
+function addCargoRow(data) {
+  cargoRowCount++;
+  const id = cargoRowCount;
+  const tbody = document.getElementById('cargoBody');
+  const tr = document.createElement('tr');
+  tr.id = 'cargo_' + id;
+  tr.innerHTML = `
+    <td><input type="text" value="${data?.brand||''}" placeholder="브랜드명"/></td>
+    <td><input type="number" value="${data?.plt||''}" placeholder="0" style="width:60px;text-align:center;"/></td>
+    <td><input type="text" value="${data?.note||''}" placeholder="비고"/></td>
+    <td><button class="del-btn" onclick="document.getElementById('cargo_${id}').remove();generatePreview()">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+// ── 미리보기 생성 ──
+function generatePreview() {
+  const v = id => document.getElementById(id)?.value?.trim() || '';
+
+  // 화물 목록
+  let cargoLines = '';
+  let totalPlt = 0;
+  document.querySelectorAll('#cargoBody tr').forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    if (inputs.length >= 2) {
+      const brand = inputs[0].value;
+      const plt   = inputs[1].value;
+      const note  = inputs[2]?.value || '';
+      if (brand) {
+        cargoLines += `${brand} ${plt}PLT${note ? ' (' + note + ')' : ''}\n`;
+        totalPlt += parseInt(plt) || 0;
+      }
+    }
+  });
+
+  const memo = v('f_memo') ? `\n※ ${v('f_memo')}\n` : '';
+  const totalPltLine = v('f_totalPlt') || `총 ${totalPlt} PLT`;
+
+  const text =
+`수신 : ${v('f_to')}
+
+
+
+${v('f_to').split('/')[0].trim()} 안녕하세요
+아래와 같이 안내드리오니 참조 부탁드립니다.
+
+
+
+1. 스케줄 및 RATE
+
+VSL/VOY : ${v('f_vsl')}
+DOC CLS  : ${v('f_doc')}
+CY CLS   : ${v('f_cy')}
+BUS ETD  : ${v('f_etd')}
+ETA      : ${v('f_eta')}
+
+${v('f_pod')} RATE
+CARRIER : ${v('f_carrier')}
+40FT=40HC : ${v('f_rate40')}
+VALIDITY  : ${v('f_validity')}
+
+${v('f_rateNote')}
+
+
+
+2. 기타 수출 부대비용
+
+${v('f_local')}
+
+총 견적 : ${v('f_total')}
+
+
+
+3. 선적 진행 예상 목록
+
+${cargoLines.trim()}
+${memo}
+${totalPltLine}
+
+
+
+확인 부탁드립니다.`;
+
+  document.getElementById('previewWrap').textContent = text;
+  return text;
+}
+
+// ── 복사 ──
+function copyMail() {
+  const text = generatePreview();
+  navigator.clipboard.writeText(text).then(() => showToast('📋 메일 내용이 복사되었습니다!'));
+}
+
+// ── 토스트 ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg || '완료!';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// 입력 변경 시 실시간 미리보기
+document.addEventListener('input', e => {
+  if (e.target.closest('#editorWrap')) generatePreview();
+});
+
+init();
+</script>
+</body>
+</html>
