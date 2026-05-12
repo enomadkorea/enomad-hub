@@ -224,7 +224,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
         <label>설명</label>
         <textarea id="f_desc" placeholder="이 자료에 대한 설명..." style="min-height:60px;resize:vertical;"></textarea>
       </div>
-      <div class="form-group" id="f_url_wrap">
+      <div class="form-group" id="f_url_wrap" style="display:none;">
         <label id="f_url_label">링크 URL</label>
         <input type="url" id="f_url" placeholder="https://..."/>
       </div>
@@ -494,32 +494,44 @@ let pendingPdfData = null; // { name, base64, size }
 
 function selectType(type, btn) {
   addType = type;
-  document.querySelectorAll('.type-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.type-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   pendingPdfData = null;
-  document.getElementById('pdfDropLabel').innerHTML = 'PDF 파일을 클릭하여 선택하세요<br/><span style="font-size:10px;">(권장 5MB 이하)</span>';
 
-  document.getElementById('f_url_label').textContent = type==='edu' ? '관련 링크 또는 URL (선택)' : type==='yt' ? '유튜브 URL *' : '링크 URL *';
-  document.getElementById('f_emoji_wrap').style.display = type==='edu' ? '' : 'none';
-  document.getElementById('f_pdf_wrap').style.display  = type==='edu' ? '' : 'none';
-  document.getElementById('f_url_wrap').style.display  = type==='edu' ? 'none' : '';
+  // PDF 드롭존 초기화
+  document.getElementById('pdfDropLabel').innerHTML = 'PDF 파일을 클릭하여 선택하세요<br/><span style="font-size:10px;">(권장 8MB 이하)</span>';
+  document.getElementById('pdfDropZone').style.borderColor = 'var(--border)';
+  document.getElementById('pdfDropZone').style.background = '#fafafa';
 
-  if (type==='yt') {
+  // 각 영역 표시/숨김
+  const isEdu  = type === 'edu';
+  const isYt   = type === 'yt';
+  const isLink = type === 'link';
+
+  document.getElementById('f_emoji_wrap').style.display = isEdu  ? '' : 'none';
+  document.getElementById('f_pdf_wrap').style.display   = isEdu  ? '' : 'none';
+  document.getElementById('f_url_wrap').style.display   = isEdu  ? 'none' : '';
+
+  // URL 라벨/플레이스홀더
+  if (isYt) {
+    document.getElementById('f_url_label').textContent = '유튜브 URL *';
     document.getElementById('f_url').placeholder = 'https://www.youtube.com/watch?v=...';
+    // 채널 필드
     if (!document.getElementById('f_channel_wrap')) {
       const wrap = document.createElement('div');
       wrap.className = 'form-group'; wrap.id = 'f_channel_wrap';
       wrap.innerHTML = '<label>채널명</label><input type="text" id="f_channel" placeholder="채널명"/>';
-      document.getElementById('f_emoji_wrap').after(wrap);
+      document.getElementById('f_url_wrap').after(wrap);
     }
     document.getElementById('f_channel_wrap').style.display = '';
-  } else {
+  } else if (isLink) {
+    document.getElementById('f_url_label').textContent = '링크 URL *';
     document.getElementById('f_url').placeholder = 'https://...';
     const cw = document.getElementById('f_channel_wrap');
     if (cw) cw.style.display = 'none';
-  }
-  if (type==='link') {
-    document.getElementById('f_url_wrap').style.display = '';
+  } else {
+    const cw = document.getElementById('f_channel_wrap');
+    if (cw) cw.style.display = 'none';
   }
 }
 
