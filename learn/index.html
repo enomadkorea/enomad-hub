@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>업무 교육 & 학습 — ENOMAD HUB</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --navy:#0A1F44;--blue:#1A4FB3;--accent:#4a8cff;
+  --bg:#F0F4F8;--white:#fff;--border:#E2E8F0;
+  --text:#2D3748;--sub:#718096;
+  --green:#16A34A;--green-bg:#F0FDF4;
+  --yellow:#D97706;--yellow-bg:#FFFBEB;
+  --red:#DC2626;--red-bg:#FEF2F2;
+  --purple:#7C3AED;--purple-bg:#F5F3FF;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* 상단 바 */
+.top-bar{background:var(--navy);padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;}
+.back{color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;}
+.back:hover{color:#fff;}
+.top-title{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;color:#fff;}
+.top-title span{color:#60A5FA;}
+
+/* 히어로 */
+.hero{background:linear-gradient(135deg,var(--navy) 0%,#1A4FB3 100%);padding:32px 24px 28px;color:#fff;}
+.hero-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.hero-text h1{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px;}
+.hero-text p{font-size:13px;color:rgba(255,255,255,0.7);line-height:1.6;}
+.hero-stats{display:flex;gap:20px;}
+.hero-stat{text-align:center;}
+.hero-stat-num{font-size:24px;font-weight:800;font-family:'Montserrat',sans-serif;}
+.hero-stat-lbl{font-size:10px;color:rgba(255,255,255,0.6);margin-top:2px;}
+
+/* 툴바 */
+.toolbar{background:#fff;border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:45px;z-index:90;}
+.cat-btn{padding:6px 14px;border-radius:18px;border:1px solid var(--border);background:#fff;color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .15s;display:flex;align-items:center;gap:5px;}
+.cat-btn:hover{border-color:var(--navy);color:var(--navy);}
+.cat-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+.search-wrap{margin-left:auto;position:relative;}
+.search-wrap input{border:1px solid var(--border);border-radius:20px;padding:6px 14px 6px 32px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;width:200px;}
+.search-wrap input:focus{border-color:var(--accent);}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--sub);font-size:13px;}
+.btn-add{padding:7px 16px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;align-items:center;gap:5px;}
+
+/* 컨텐츠 영역 */
+.content{max-width:1200px;margin:0 auto;padding:20px 24px;}
+
+/* 섹션 타이틀 */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;margin-top:8px;}
+.section-title{font-size:15px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px;}
+.section-count{font-size:11px;color:var(--sub);background:var(--bg);padding:2px 8px;border-radius:10px;}
+
+/* 카드 그리드 */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:28px;}
+
+/* 이노마드 교육 카드 */
+.edu-card{background:#fff;border-radius:12px;border:1px solid var(--border);overflow:hidden;transition:all .2s;cursor:pointer;display:flex;flex-direction:column;}
+.edu-card:hover{box-shadow:0 4px 16px rgba(10,31,68,0.12);transform:translateY(-2px);}
+.edu-card-thumb{height:120px;display:flex;align-items:center;justify-content:center;font-size:42px;flex-shrink:0;}
+.edu-card-body{padding:14px 16px;flex:1;display:flex;flex-direction:column;}
+.edu-card-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;display:inline-block;margin-bottom:7px;width:fit-content;}
+.edu-card-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:5px;line-height:1.4;}
+.edu-card-desc{font-size:12px;color:var(--sub);line-height:1.6;flex:1;}
+.edu-card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
+.edu-card-meta{font-size:10px;color:var(--sub);}
+.btn-view{padding:5px 12px;background:var(--navy);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;text-decoration:none;display:inline-block;}
+
+/* 유튜브 카드 */
+.yt-card{background:#fff;border-radius:12px;border:1px solid var(--border);overflow:hidden;transition:all .2s;}
+.yt-card:hover{box-shadow:0 4px 16px rgba(10,31,68,0.12);transform:translateY(-2px);}
+.yt-thumb-wrap{position:relative;cursor:pointer;}
+.yt-thumb{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#111;}
+.yt-thumb-placeholder{width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#1a1a2e,#16213e);display:flex;align-items:center;justify-content:center;}
+.yt-play-btn{width:48px;height:48px;background:rgba(255,0,0,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;}
+.yt-card-body{padding:12px 14px;}
+.yt-card-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:5px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.yt-card-meta{display:flex;align-items:center;justify-content:space-between;}
+.yt-channel{font-size:11px;color:var(--sub);}
+.yt-link{font-size:11px;color:var(--red);font-weight:700;text-decoration:none;}
+.yt-link:hover{text-decoration:underline;}
+
+/* 링크 카드 */
+.link-card{background:#fff;border-radius:12px;border:1px solid var(--border);padding:14px 16px;transition:all .2s;display:flex;gap:12px;align-items:flex-start;}
+.link-card:hover{box-shadow:0 4px 14px rgba(10,31,68,0.1);transform:translateY(-1px);}
+.link-card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.link-card-body{flex:1;min-width:0;}
+.link-card-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.link-card-desc{font-size:11px;color:var(--sub);line-height:1.5;margin-bottom:6px;}
+.link-card-url{font-size:10px;color:var(--accent);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.link-card-actions{display:flex;gap:5px;margin-top:8px;}
+.btn-link{padding:4px 10px;border-radius:5px;font-size:10px;font-weight:700;text-decoration:none;font-family:'Noto Sans KR',sans-serif;}
+.btn-link-primary{background:#EBF4FF;color:var(--blue);}
+.btn-link-del{background:#FFF5F5;color:var(--red);border:none;cursor:pointer;}
+
+/* 모달 */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
+.modal-overlay.hidden{display:none;}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:520px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.22);}
+.modal-header{background:var(--navy);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;}
+.modal-header h3{font-size:14px;font-weight:700;}
+.modal-close{background:none;border:none;color:rgba(255,255,255,0.7);font-size:18px;cursor:pointer;}
+.modal-body{padding:18px 20px;}
+.form-group{margin-bottom:12px;}
+.form-group label{display:block;font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.form-group input,.form-group textarea,.form-group select{width:100%;border:1px solid var(--border);border-radius:7px;padding:8px 11px;font-size:13px;font-family:'Noto Sans KR',sans-serif;color:var(--text);outline:none;}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--accent);}
+.modal-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+.btn{padding:8px 18px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--navy);color:#fff;}
+.btn-cancel{background:var(--bg);color:var(--sub);}
+
+/* 타입 선택 탭 */
+.type-tabs{display:flex;gap:8px;margin-bottom:14px;}
+.type-tab{flex:1;padding:8px;border-radius:8px;border:2px solid var(--border);background:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;text-align:center;transition:all .15s;}
+.type-tab.active{border-color:var(--navy);background:var(--navy);color:#fff;}
+
+/* 토스트 */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:9px 20px;border-radius:18px;font-size:12px;opacity:0;transition:all .3s;pointer-events:none;z-index:999;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* 빈 상태 */
+.empty-section{text-align:center;padding:32px;color:var(--sub);background:#fff;border-radius:12px;border:1px dashed var(--border);}
+
+@media(max-width:640px){
+  .card-grid{grid-template-columns:1fr;}
+  .toolbar{top:44px;}
+  .hero-stats{gap:12px;}
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a class="back" href="../">← ENOMAD HUB</a>
+  <div class="top-title"><span>ENOMAD</span> · 교육 & 학습</div>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <h1>📚 업무 교육 & 학습 허브</h1>
+      <p>이노마드 실무 교육 자료 · 외부 레퍼런스 · 유튜브 강의<br/>필요한 학습을 한곳에서</p>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num" id="statEdu">0</div><div class="hero-stat-lbl">이노마드 교육</div></div>
+      <div class="hero-stat"><div class="hero-stat-num" id="statYt">0</div><div class="hero-stat-lbl">유튜브 영상</div></div>
+      <div class="hero-stat"><div class="hero-stat-num" id="statLink">0</div><div class="hero-stat-lbl">레퍼런스 링크</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toolbar" id="toolbar">
+  <button class="cat-btn active" onclick="setCategory('all',this)">🔍 전체</button>
+  <button class="cat-btn" onclick="setCategory('amazon',this)">📦 아마존 FBA</button>
+  <button class="cat-btn" onclick="setCategory('logistics',this)">🚢 해상물류</button>
+  <button class="cat-btn" onclick="setCategory('customs',this)">🛃 통관</button>
+  <button class="cat-btn" onclick="setCategory('marketing',this)">📣 마케팅</button>
+  <button class="cat-btn" onclick="setCategory('business',this)">💼 비즈니스</button>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" placeholder="검색..." oninput="searchContent(this.value)" id="searchInput"/>
+  </div>
+  <button class="btn-add" onclick="openModal()">＋ 자료 추가</button>
+</div>
+
+<div class="content">
+  <!-- 이노마드 자체 교육 -->
+  <div id="section-edu">
+    <div class="section-header">
+      <div class="section-title">🏢 이노마드 실무 교육 <span class="section-count" id="cnt-edu">0개</span></div>
+    </div>
+    <div class="card-grid" id="grid-edu"></div>
+  </div>
+
+  <!-- 유튜브 영상 -->
+  <div id="section-yt">
+    <div class="section-header">
+      <div class="section-title">▶️ 유튜브 강의 & 영상 <span class="section-count" id="cnt-yt">0개</span></div>
+    </div>
+    <div class="card-grid" id="grid-yt"></div>
+  </div>
+
+  <!-- 레퍼런스 링크 -->
+  <div id="section-link">
+    <div class="section-header">
+      <div class="section-title">🔗 외부 레퍼런스 <span class="section-count" id="cnt-link">0개</span></div>
+    </div>
+    <div class="card-grid" id="grid-link"></div>
+  </div>
+</div>
+
+<!-- 자료 추가 모달 -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">학습 자료 추가</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="type-tabs">
+        <button class="type-tab active" onclick="selectType('edu',this)">🏢 이노마드 교육</button>
+        <button class="type-tab" onclick="selectType('yt',this)">▶️ 유튜브</button>
+        <button class="type-tab" onclick="selectType('link',this)">🔗 레퍼런스</button>
+      </div>
+      <div class="form-group">
+        <label>제목 *</label>
+        <input type="text" id="f_title" placeholder="자료 제목"/>
+      </div>
+      <div class="form-group">
+        <label>카테고리</label>
+        <select id="f_category">
+          <option value="amazon">📦 아마존 FBA</option>
+          <option value="logistics">🚢 해상물류</option>
+          <option value="customs">🛃 통관</option>
+          <option value="marketing">📣 마케팅</option>
+          <option value="business">💼 비즈니스</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>설명</label>
+        <textarea id="f_desc" placeholder="이 자료에 대한 설명..." style="min-height:60px;resize:vertical;"></textarea>
+      </div>
+      <div class="form-group" id="f_url_wrap">
+        <label id="f_url_label">링크 URL</label>
+        <input type="url" id="f_url" placeholder="https://..."/>
+      </div>
+      <div class="form-group" id="f_emoji_wrap">
+        <label>아이콘 이모지 (교육 자료)</label>
+        <input type="text" id="f_emoji" placeholder="예: 📦" maxlength="4"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveContent()">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── 기본 데이터 ──
+const DEFAULT_DATA = {
+  edu: [
+    {
+      id:'edu1', type:'edu', category:'amazon',
+      title:'아마존 FBA 입문 — 셀러 센트럴 기본 세팅',
+      desc:'아마존 셀러 계정 개설부터 FBA 창고 등록, 첫 상품 등록까지 단계별 실무 가이드',
+      emoji:'📦', url:'', date:'2026-05'
+    },
+    {
+      id:'edu2', type:'edu', category:'logistics',
+      title:'한국 → 미국 해상 FCL 선적 프로세스',
+      desc:'부산항 출발 → LA/LB 도착 FCL 컨테이너 선적 전 과정: 부킹, B/L, 통관 연계',
+      emoji:'🚢', url:'', date:'2026-05'
+    },
+    {
+      id:'edu3', type:'edu', category:'customs',
+      title:'미국 수입 통관 기초 — HTS Code & 관세',
+      desc:'화장품/뷰티 제품 미국 수입 시 알아야 할 HTS Code, 관세율, FDA 등록 여부 확인법',
+      emoji:'🛃', url:'', date:'2026-05'
+    },
+  ],
+  yt: [
+    {
+      id:'yt1', type:'yt', category:'amazon',
+      title:'아마존 FBA 완전 정복 — 2024 최신판',
+      desc:'아마존 FBA 셀러를 위한 종합 가이드',
+      url:'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      channel:'이커머스 실무', date:'2026-05'
+    },
+    {
+      id:'yt2', type:'yt', category:'logistics',
+      title:'해상 물류 LCL vs FCL 차이점 총정리',
+      desc:'LCL과 FCL 선택 기준, 비용 비교, 실무 팁',
+      url:'https://www.youtube.com/watch?v=example2',
+      channel:'물류 마스터', date:'2026-05'
+    },
+  ],
+  link: [
+    {
+      id:'lnk1', type:'link', category:'amazon',
+      title:'Amazon Seller Central',
+      desc:'아마존 셀러 공식 관리 페이지 — 재고, 주문, 광고 통합 관리',
+      url:'https://sellercentral.amazon.com', date:'2026-05'
+    },
+    {
+      id:'lnk2', type:'link', category:'customs',
+      title:'미국 CBP 공식 사이트',
+      desc:'미국 세관국경보호청 — 통관 규정, HTS 조회, FDA 연계 정보',
+      url:'https://www.cbp.gov', date:'2026-05'
+    },
+    {
+      id:'lnk3', type:'link', category:'logistics',
+      title:'Freightos — 해상운임 비교',
+      desc:'글로벌 해상/항공 운임 실시간 비교 플랫폼',
+      url:'https://www.freightos.com', date:'2026-05'
+    },
+    {
+      id:'lnk4', type:'link', category:'amazon',
+      title:'Jungle Scout — 아마존 리서치 툴',
+      desc:'아마존 상품 리서치, 키워드 분석, 매출 예측 도구',
+      url:'https://www.junglescout.com', date:'2026-05'
+    },
+  ]
+};
+
+const CAT_LABELS = {amazon:'📦 아마존 FBA',logistics:'🚢 해상물류',customs:'🛃 통관',marketing:'📣 마케팅',business:'💼 비즈니스'};
+const CAT_COLORS = {amazon:'#EBF4FF',logistics:'#F0FDF4',customs:'#FFF7ED',marketing:'#FDF4FF',business:'#F0F9FF'};
+const CAT_TEXT   = {amazon:var_blue='#1A4FB3',logistics:'#16A34A',customs:'#EA580C',marketing:'#7C3AED',business:'#0284C7'};
+
+let allData = {edu:[], yt:[], link:[]};
+let currentCat = 'all';
+let currentSearch = '';
+let addType = 'edu';
+
+function init() {
+  const saved = localStorage.getItem('enomad_learn_v1');
+  if (saved) { try { allData = JSON.parse(saved); } catch(e){} }
+  if (!allData.edu?.length && !allData.yt?.length && !allData.link?.length) {
+    allData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    saveData();
+  }
+  render();
+}
+function saveData() { localStorage.setItem('enomad_learn_v1', JSON.stringify(allData)); }
+
+// ── 필터 ──
+function setCategory(cat, btn) {
+  currentCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+function searchContent(q) { currentSearch = q.toLowerCase(); render(); }
+
+function filterItems(items) {
+  return items.filter(item => {
+    const catOk = currentCat==='all' || item.category===currentCat;
+    const q = currentSearch;
+    const searchOk = !q || item.title.toLowerCase().includes(q) || (item.desc||'').toLowerCase().includes(q);
+    return catOk && searchOk;
+  });
+}
+
+// ── 렌더 ──
+function render() {
+  const edu  = filterItems(allData.edu  || []);
+  const yt   = filterItems(allData.yt   || []);
+  const link = filterItems(allData.link || []);
+
+  // 통계 업데이트
+  document.getElementById('statEdu').textContent  = allData.edu?.length  || 0;
+  document.getElementById('statYt').textContent   = allData.yt?.length   || 0;
+  document.getElementById('statLink').textContent = allData.link?.length || 0;
+  document.getElementById('cnt-edu').textContent  = edu.length  + '개';
+  document.getElementById('cnt-yt').textContent   = yt.length   + '개';
+  document.getElementById('cnt-link').textContent = link.length + '개';
+
+  // 섹션 표시/숨김
+  document.getElementById('section-edu').style.display  = edu.length  ? '' : (currentCat!=='all'&&currentCat!=='amazon'&&currentCat!=='logistics'&&currentCat!=='customs'&&currentCat!=='marketing'&&currentCat!=='business') ? 'none' : '';
+  document.getElementById('section-yt').style.display   = 'block';
+  document.getElementById('section-link').style.display = 'block';
+
+  renderEdu(edu);
+  renderYt(yt);
+  renderLink(link);
+}
+
+function renderEdu(items) {
+  const grid = document.getElementById('grid-edu');
+  if (!items.length) {
+    grid.innerHTML = '<div class="empty-section">등록된 이노마드 교육 자료가 없습니다<br/><small>상단 [자료 추가] 버튼으로 추가해보세요</small></div>';
+    return;
+  }
+  grid.innerHTML = items.map(item => {
+    const bgColor = CAT_COLORS[item.category] || '#F0F4F8';
+    const txtColor = CAT_TEXT[item.category] || '#1A4FB3';
+    const urlBtn = item.url ? `<a class="btn-view" href="${item.url}" target="_blank">바로 가기 →</a>` : `<span style="font-size:11px;color:var(--sub);">📌 내부 자료</span>`;
+    return `<div class="edu-card">
+      <div class="edu-card-thumb" style="background:${bgColor};">${item.emoji||'📄'}</div>
+      <div class="edu-card-body">
+        <div class="edu-card-tag" style="background:${bgColor};color:${txtColor};">${CAT_LABELS[item.category]||item.category}</div>
+        <div class="edu-card-title">${item.title}</div>
+        <div class="edu-card-desc">${item.desc||''}</div>
+        <div class="edu-card-footer">
+          <span class="edu-card-meta">📅 ${item.date||''}</span>
+          <div style="display:flex;gap:6px;align-items:center;">
+            ${urlBtn}
+            <button class="btn-sm" style="background:#FFF5F5;color:#E53E3E;" onclick="deleteItem('edu','${item.id}')">🗑</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function getYtId(url) {
+  const m = url.match(/(?:v=|youtu\.be\/)([^&\s?]+)/);
+  return m ? m[1] : null;
+}
+
+function renderYt(items) {
+  const grid = document.getElementById('grid-yt');
+  if (!items.length) {
+    grid.innerHTML = '<div class="empty-section">등록된 유튜브 영상이 없습니다</div>';
+    return;
+  }
+  grid.innerHTML = items.map(item => {
+    const ytId = getYtId(item.url||'');
+    const thumb = ytId
+      ? `<img class="yt-thumb" src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+         <div class="yt-thumb-placeholder" style="display:none;"><div class="yt-play-btn">▶</div></div>`
+      : `<div class="yt-thumb-placeholder"><div class="yt-play-btn">▶</div></div>`;
+    const bgColor = CAT_COLORS[item.category] || '#F0F4F8';
+    const txtColor = CAT_TEXT[item.category] || '#1A4FB3';
+    return `<div class="yt-card">
+      <div class="yt-thumb-wrap" onclick="window.open('${item.url}','_blank')">
+        ${thumb}
+      </div>
+      <div class="yt-card-body">
+        <div class="yt-card-title">${item.title}</div>
+        <div style="margin-bottom:6px;"><span style="font-size:10px;padding:2px 7px;border-radius:8px;font-weight:700;background:${bgColor};color:${txtColor};">${CAT_LABELS[item.category]||''}</span></div>
+        <div class="yt-card-meta">
+          <span class="yt-channel">📺 ${item.channel||''}</span>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <a class="yt-link" href="${item.url}" target="_blank">▶ 보러 가기</a>
+            <button class="btn-sm" style="background:#FFF5F5;color:#E53E3E;" onclick="deleteItem('yt','${item.id}')">🗑</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderLink(items) {
+  const grid = document.getElementById('grid-link');
+  if (!items.length) {
+    grid.innerHTML = '<div class="empty-section">등록된 레퍼런스 링크가 없습니다</div>';
+    return;
+  }
+  grid.innerHTML = items.map(item => {
+    const bgColor = CAT_COLORS[item.category] || '#F0F4F8';
+    const txtColor = CAT_TEXT[item.category] || '#1A4FB3';
+    const domain = item.url ? new URL(item.url).hostname : '';
+    const faviconUrl = item.url ? `https://www.google.com/s2/favicons?domain=${domain}&sz=32` : '';
+    return `<div class="link-card">
+      <div class="link-card-icon" style="background:${bgColor};">
+        ${item.url ? `<img src="${faviconUrl}" width="22" onerror="this.outerHTML='🔗'"/>` : '🔗'}
+      </div>
+      <div class="link-card-body">
+        <div class="link-card-title">${item.title}</div>
+        <div class="link-card-desc">${item.desc||''}</div>
+        <div style="margin-bottom:4px;"><span style="font-size:10px;padding:1px 6px;border-radius:8px;font-weight:700;background:${bgColor};color:${txtColor};">${CAT_LABELS[item.category]||''}</span></div>
+        <div class="link-card-url">${item.url||''}</div>
+        <div class="link-card-actions">
+          <a class="btn-link btn-link-primary" href="${item.url}" target="_blank">🔗 열기</a>
+          <button class="btn-link btn-link-del" onclick="deleteItem('link','${item.id}')">🗑 삭제</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── 삭제 ──
+function deleteItem(type, id) {
+  if (!confirm('삭제하시겠습니까?')) return;
+  allData[type] = allData[type].filter(x=>x.id!==id);
+  saveData(); render(); showToast('🗑 삭제되었습니다');
+}
+
+// ── 모달 ──
+function selectType(type, btn) {
+  addType = type;
+  document.querySelectorAll('.type-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  // URL 라벨 변경
+  document.getElementById('f_url_label').textContent = type==='edu' ? '관련 링크 (선택)' : type==='yt' ? '유튜브 URL *' : '링크 URL *';
+  document.getElementById('f_emoji_wrap').style.display = type==='edu' ? '' : 'none';
+  if (type==='yt') {
+    document.getElementById('f_url').placeholder = 'https://www.youtube.com/watch?v=...';
+    // 채널 필드 추가
+    if (!document.getElementById('f_channel_wrap')) {
+      const wrap = document.createElement('div');
+      wrap.className = 'form-group'; wrap.id = 'f_channel_wrap';
+      wrap.innerHTML = '<label>채널명</label><input type="text" id="f_channel" placeholder="채널명"/>';
+      document.getElementById('f_emoji_wrap').after(wrap);
+    }
+    document.getElementById('f_channel_wrap').style.display = '';
+  } else {
+    document.getElementById('f_url').placeholder = 'https://...';
+    const cw = document.getElementById('f_channel_wrap');
+    if (cw) cw.style.display = 'none';
+  }
+}
+
+function openModal() {
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  document.getElementById('f_title').value = '';
+  document.getElementById('f_desc').value = '';
+  document.getElementById('f_url').value = '';
+  document.getElementById('f_emoji').value = '';
+  if (document.getElementById('f_channel')) document.getElementById('f_channel').value = '';
+  selectType('edu', document.querySelectorAll('.type-tab')[0]);
+  document.querySelectorAll('.type-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.type-tab')[0].classList.add('active');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); }
+
+function saveContent() {
+  const title = document.getElementById('f_title').value.trim();
+  if (!title) { alert('제목을 입력해주세요'); return; }
+  const url = document.getElementById('f_url').value.trim();
+  if ((addType==='yt'||addType==='link') && !url) { alert('URL을 입력해주세요'); return; }
+
+  const today = new Date().toISOString().substring(0,7);
+  const item = {
+    id: addType + '_' + Date.now(),
+    type: addType,
+    category: document.getElementById('f_category').value,
+    title,
+    desc: document.getElementById('f_desc').value.trim(),
+    url,
+    date: today,
+  };
+  if (addType==='edu') item.emoji = document.getElementById('f_emoji').value || '📄';
+  if (addType==='yt')  item.channel = document.getElementById('f_channel')?.value.trim() || '';
+
+  allData[addType].unshift(item);
+  saveData(); closeModal(); render();
+  showToast('✅ 자료가 추가되었습니다!');
+}
+
+document.getElementById('modalOverlay').addEventListener('click', e=>{
+  if(e.target===document.getElementById('modalOverlay')) closeModal();
+});
+
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2300);
+}
+
+// CAT_TEXT fix
+const var_blue = '#1A4FB3';
+
+init();
+</script>
+</body>
+</html>
