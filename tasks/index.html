@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>업무 관리 — ENOMAD HUB</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy: #0A1F44;
+  --blue: #1A4FB3;
+  --accent: #4a8cff;
+  --bg: #F0F4F8;
+  --white: #fff;
+  --border: #E2E8F0;
+  --text: #2D3748;
+  --sub: #718096;
+  --green: #16A34A;
+  --green-bg: #F0FDF4;
+  --yellow: #D97706;
+  --yellow-bg: #FFFBEB;
+  --red: #DC2626;
+  --red-bg: #FEF2F2;
+  --orange: #EA580C;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* 상단 바 */
+.top-bar{background:var(--navy);padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;}
+.back{color:rgba(255,255,255,0.6);text-decoration:none;font-size:13px;display:flex;align-items:center;gap:5px;}
+.back:hover{color:#fff;}
+.top-title{font-family:'Montserrat',sans-serif;font-size:14px;font-weight:700;color:#fff;letter-spacing:0.5px;}
+.top-title span{color:#60A5FA;}
+
+/* 기간 탭 */
+.period-tabs{display:flex;gap:0;background:var(--navy);padding:0 24px;border-top:1px solid rgba(255,255,255,0.08);}
+.period-tab{padding:10px 22px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);cursor:pointer;border-bottom:3px solid transparent;transition:all .15s;font-family:'Noto Sans KR',sans-serif;}
+.period-tab:hover{color:rgba(255,255,255,0.85);}
+.period-tab.active{color:#fff;border-bottom-color:#4a8cff;}
+
+/* 메인 레이아웃 */
+.layout{display:grid;grid-template-columns:320px 1fr;gap:20px;padding:20px 24px;max-width:1400px;margin:0 auto;}
+
+/* 패널 공통 */
+.panel{background:var(--white);border-radius:12px;border:1px solid var(--border);overflow:hidden;}
+.panel-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.panel-title{font-size:13px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px;}
+.panel-body{padding:16px 18px;}
+
+/* KPI 패널 */
+.kpi-section{margin-bottom:18px;}
+.kpi-label{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;}
+.goal-input{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:'Noto Sans KR',sans-serif;color:var(--text);outline:none;resize:none;min-height:60px;}
+.goal-input:focus{border-color:var(--accent);}
+
+.kpi-item{margin-bottom:14px;}
+.kpi-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.kpi-name{font-size:13px;font-weight:600;color:var(--text);}
+.kpi-pct{font-size:13px;font-weight:700;color:var(--blue);}
+.kpi-bar-bg{height:8px;background:#EBF0FA;border-radius:4px;overflow:hidden;}
+.kpi-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--accent));transition:width .4s ease;}
+.kpi-edit-row{display:flex;gap:6px;margin-top:6px;}
+.kpi-edit-row input{flex:1;border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;}
+.kpi-edit-row input:focus{border-color:var(--accent);}
+.kpi-edit-row input[type=range]{padding:0;accent-color:var(--blue);}
+.btn-sm{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif;}
+.btn-add-kpi{width:100%;padding:7px;background:#EBF4FF;color:var(--blue);border:1px dashed var(--accent);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;margin-top:4px;}
+
+/* 요약 박스 */
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+.summary-card{background:var(--bg);border-radius:8px;padding:10px 12px;text-align:center;}
+.summary-num{font-size:22px;font-weight:700;color:var(--navy);}
+.summary-lbl{font-size:10px;color:var(--sub);margin-top:2px;}
+.summary-num.done{color:var(--green);}
+.summary-num.ing{color:var(--blue);}
+.summary-num.high{color:var(--red);}
+
+/* 업무 목록 */
+.task-toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.filter-btn{padding:5px 12px;border-radius:16px;border:1px solid var(--border);background:#fff;color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .15s;}
+.filter-btn.active,.filter-btn:hover{background:var(--navy);color:#fff;border-color:var(--navy);}
+.btn-add-task{margin-left:auto;padding:7px 16px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;align-items:center;gap:5px;}
+
+/* 업무 카드 */
+.task-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;transition:all .2s;position:relative;border-left:4px solid var(--border);}
+.task-card.priority-high{border-left-color:var(--red);}
+.task-card.priority-mid{border-left-color:var(--yellow);}
+.task-card.priority-low{border-left-color:var(--green);}
+.task-card.done-card{opacity:.6;background:#fafafa;}
+.task-card-top{display:flex;align-items:flex-start;gap:10px;}
+.task-check{width:18px;height:18px;border-radius:4px;border:2px solid var(--border);cursor:pointer;flex-shrink:0;margin-top:2px;accent-color:var(--navy);}
+.task-main{flex:1;min-width:0;}
+.task-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;word-break:break-all;}
+.task-card.done-card .task-title{text-decoration:line-through;color:var(--sub);}
+.task-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
+.tag-high{background:var(--red-bg);color:var(--red);}
+.tag-mid{background:var(--yellow-bg);color:var(--yellow);}
+.tag-low{background:var(--green-bg);color:var(--green);}
+.tag-partner{background:#EBF4FF;color:var(--blue);}
+.tag-date{background:#F7FAFC;color:var(--sub);border:1px solid var(--border);}
+.task-note{font-size:12px;color:var(--sub);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);}
+.task-actions{display:flex;gap:4px;margin-left:auto;flex-shrink:0;}
+.icon-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:2px 5px;color:var(--sub);border-radius:4px;}
+.icon-btn:hover{background:var(--bg);}
+
+/* 모달 */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:500;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px);}
+.modal-overlay.hidden{display:none;}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:520px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+.modal-header{background:var(--navy);color:#fff;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;}
+.modal-header h3{font-size:15px;font-weight:700;}
+.modal-close{background:none;border:none;color:rgba(255,255,255,0.7);font-size:20px;cursor:pointer;line-height:1;}
+.modal-body{padding:20px 22px;}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
+.form-group input,.form-group textarea,.form-group select{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:'Noto Sans KR',sans-serif;color:var(--text);outline:none;}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--accent);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+.btn{padding:9px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Noto Sans KR',sans-serif;}
+.btn-primary{background:var(--navy);color:#fff;}
+.btn-cancel{background:var(--bg);color:var(--sub);}
+
+/* 하위 요약 탭 */
+.sub-summary{background:#EBF4FF;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--blue);border:1px solid #BFDBFE;}
+.sub-summary strong{font-weight:700;}
+
+/* 빈 상태 */
+.empty-tasks{text-align:center;padding:40px 20px;color:var(--sub);}
+.empty-tasks .ei{font-size:36px;margin-bottom:10px;}
+
+/* 토스트 */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:999;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .period-tab{padding:9px 14px;font-size:12px;}
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a class="back" href="../">← ENOMAD HUB</a>
+  <div class="top-title"><span>ENOMAD</span> · 업무 관리</div>
+</div>
+
+<div class="period-tabs">
+  <div class="period-tab active" onclick="switchPeriod('daily',this)">📅 일간</div>
+  <div class="period-tab" onclick="switchPeriod('weekly',this)">📆 주간</div>
+  <div class="period-tab" onclick="switchPeriod('monthly',this)">🗓 월간</div>
+  <div class="period-tab" onclick="switchPeriod('quarterly',this)">📊 분기</div>
+  <div class="period-tab" onclick="switchPeriod('yearly',this)">🎯 연간</div>
+</div>
+
+<div class="layout">
+  <!-- 왼쪽: 목표 & KPI -->
+  <div>
+    <div class="panel" style="margin-bottom:16px;">
+      <div class="panel-header">
+        <div class="panel-title">🎯 목표 설정</div>
+        <button class="btn-sm" style="background:var(--green-bg);color:var(--green);border:1px solid #86EFAC;" onclick="saveGoal()">저장</button>
+      </div>
+      <div class="panel-body">
+        <div class="kpi-section">
+          <div class="kpi-label" id="goalPeriodLabel">이번 주 목표</div>
+          <textarea class="goal-input" id="goalInput" placeholder="이번 기간의 핵심 목표를 입력하세요..."></textarea>
+        </div>
+        <div class="kpi-section">
+          <div class="kpi-label">KPI 지표</div>
+          <div id="kpiList"></div>
+          <button class="btn-add-kpi" onclick="addKpi()">+ KPI 항목 추가</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 요약 카드 -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">📋 현황 요약</div>
+      </div>
+      <div class="panel-body">
+        <div class="summary-grid">
+          <div class="summary-card"><div class="summary-num ing" id="sumTotal">0</div><div class="summary-lbl">전체 업무</div></div>
+          <div class="summary-card"><div class="summary-num done" id="sumDone">0</div><div class="summary-lbl">완료</div></div>
+          <div class="summary-card"><div class="summary-num ing" id="sumIng">0</div><div class="summary-lbl">진행 중</div></div>
+          <div class="summary-card"><div class="summary-num high" id="sumHigh">0</div><div class="summary-lbl">중요도 높음</div></div>
+        </div>
+        <!-- 하위 기간 요약 -->
+        <div id="subSummaryWrap"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 오른쪽: 업무 목록 -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title" id="taskPanelTitle">📅 일간 업무</div>
+      <button class="btn-add-task" onclick="openModal()">＋ 업무 추가</button>
+    </div>
+    <div class="panel-body">
+      <div class="task-toolbar">
+        <button class="filter-btn active" onclick="setFilter('all',this)">전체</button>
+        <button class="filter-btn" onclick="setFilter('ing',this)">진행 중</button>
+        <button class="filter-btn" onclick="setFilter('done',this)">완료</button>
+        <button class="filter-btn" onclick="setFilter('high',this)">🔴 중요</button>
+      </div>
+      <div id="taskList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 업무 추가/수정 모달 -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">업무 추가</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>업무 내용 *</label>
+        <input type="text" id="f_title" placeholder="업무 내용을 입력하세요"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>업무 개시일</label>
+          <input type="date" id="f_start"/>
+        </div>
+        <div class="form-group">
+          <label>업무 종료일</label>
+          <input type="date" id="f_end"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>중요도</label>
+          <select id="f_priority">
+            <option value="high">🔴 높음</option>
+            <option value="mid" selected>🟡 중간</option>
+            <option value="low">🟢 낮음</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>업무 파트너</label>
+          <input type="text" id="f_partner" placeholder="담당자 / 거래처"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>특이사항</label>
+        <textarea id="f_note" placeholder="특이사항, 메모 등" style="min-height:70px;resize:vertical;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveTask()">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── 상수 ──
+const PERIODS = ['daily','weekly','monthly','quarterly','yearly'];
+const PERIOD_LABELS = {daily:'일간',weekly:'주간',monthly:'월간',quarterly:'분기',yearly:'연간'};
+const PERIOD_GOAL_LABELS = {daily:'오늘의 목표',weekly:'이번 주 목표',monthly:'이번 달 목표',quarterly:'이번 분기 목표',yearly:'올해 목표'};
+const PRIORITY_LABEL = {high:'높음',mid:'중간',low:'낮음'};
+
+let currentPeriod = 'daily';
+let currentFilter = 'all';
+let editingId = null;
+let data = {}; // { daily:{goal:'',kpis:[],tasks:[]}, weekly:{...}, ... }
+
+// ── 초기화 ──
+function init() {
+  const saved = localStorage.getItem('enomad_tasks_v2');
+  if (saved) {
+    try { data = JSON.parse(saved); } catch(e) {}
+  }
+  PERIODS.forEach(p => {
+    if (!data[p]) data[p] = {goal:'', kpis:[], tasks:[]};
+  });
+  // 오늘 날짜 기본값
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('f_start').value = today;
+  switchPeriod('daily', document.querySelector('.period-tab'));
+}
+
+function saveData() {
+  localStorage.setItem('enomad_tasks_v2', JSON.stringify(data));
+}
+
+// ── 기간 전환 ──
+function switchPeriod(period, btn) {
+  currentPeriod = period;
+  document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('goalPeriodLabel').textContent = PERIOD_GOAL_LABELS[period];
+  document.getElementById('taskPanelTitle').textContent =
+    {daily:'📅 일간 업무', weekly:'📆 주간 업무', monthly:'🗓 월간 업무',
+     quarterly:'📊 분기 업무', yearly:'🎯 연간 업무'}[period];
+  renderGoal();
+  renderKpis();
+  renderSummary();
+  renderSubSummary();
+  renderTasks();
+}
+
+// ── 목표 ──
+function renderGoal() {
+  document.getElementById('goalInput').value = data[currentPeriod].goal || '';
+}
+function saveGoal() {
+  data[currentPeriod].goal = document.getElementById('goalInput').value.trim();
+  saveData();
+  showToast('✅ 목표가 저장되었습니다');
+}
+
+// ── KPI ──
+function renderKpis() {
+  const kpis = data[currentPeriod].kpis || [];
+  document.getElementById('kpiList').innerHTML = kpis.map((k,i) => `
+    <div class="kpi-item" id="kpi_${i}">
+      <div class="kpi-top">
+        <span class="kpi-name">${k.name}</span>
+        <span class="kpi-pct">${k.value}%</span>
+      </div>
+      <div class="kpi-bar-bg"><div class="kpi-bar-fill" style="width:${k.value}%"></div></div>
+      <div class="kpi-edit-row">
+        <input type="text" value="${k.name}" onchange="updateKpi(${i},'name',this.value)" placeholder="KPI 항목명"/>
+        <input type="range" min="0" max="100" value="${k.value}" oninput="updateKpiVal(${i},this.value)" style="width:90px;"/>
+        <button class="btn-sm" style="background:#FFF5F5;color:#E53E3E;" onclick="removeKpi(${i})">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+function addKpi() {
+  data[currentPeriod].kpis.push({name:'새 KPI', value:0});
+  saveData(); renderKpis();
+}
+function updateKpi(i, field, val) {
+  data[currentPeriod].kpis[i][field] = val;
+  saveData(); renderKpis();
+}
+function updateKpiVal(i, val) {
+  data[currentPeriod].kpis[i].value = parseInt(val);
+  saveData(); renderKpis();
+}
+function removeKpi(i) {
+  data[currentPeriod].kpis.splice(i,1);
+  saveData(); renderKpis();
+}
+
+// ── 요약 ──
+function renderSummary() {
+  const tasks = data[currentPeriod].tasks || [];
+  const done  = tasks.filter(t => t.done).length;
+  const ing   = tasks.filter(t => !t.done).length;
+  const high  = tasks.filter(t => t.priority==='high').length;
+  document.getElementById('sumTotal').textContent = tasks.length;
+  document.getElementById('sumDone').textContent  = done;
+  document.getElementById('sumIng').textContent   = ing;
+  document.getElementById('sumHigh').textContent  = high;
+}
+
+// ── 하위 기간 요약 ──
+function renderSubSummary() {
+  const idx = PERIODS.indexOf(currentPeriod);
+  const wrap = document.getElementById('subSummaryWrap');
+  if (idx === 0) { wrap.innerHTML=''; return; }
+  // 더 작은 단위들 요약
+  let html = '';
+  for (let i = 0; i < idx; i++) {
+    const p = PERIODS[i];
+    const tasks = data[p].tasks || [];
+    const done = tasks.filter(t=>t.done).length;
+    const goal = data[p].goal ? `"${data[p].goal.substring(0,30)}${data[p].goal.length>30?'...':''}"` : '목표 미설정';
+    html += `<div class="sub-summary">
+      <strong>${PERIOD_LABELS[p]}</strong> — ${goal}<br/>
+      업무 ${tasks.length}건 · 완료 <strong>${done}건</strong> · 진행 중 ${tasks.length-done}건
+    </div>`;
+  }
+  wrap.innerHTML = html;
+}
+
+// ── 업무 렌더 ──
+function renderTasks() {
+  const tasks = (data[currentPeriod].tasks || []).filter(t => {
+    if (currentFilter === 'done') return t.done;
+    if (currentFilter === 'ing')  return !t.done;
+    if (currentFilter === 'high') return t.priority === 'high';
+    return true;
+  });
+
+  if (tasks.length === 0) {
+    document.getElementById('taskList').innerHTML =
+      `<div class="empty-tasks"><div class="ei">📋</div><div>등록된 업무가 없습니다<br/><small style="font-size:12px;color:#A0AEC0;">상단 [업무 추가] 버튼을 눌러주세요</small></div></div>`;
+    return;
+  }
+
+  document.getElementById('taskList').innerHTML = tasks.map(t => {
+    const priorityTag = `<span class="tag tag-${t.priority}">${{high:'🔴 높음',mid:'🟡 중간',low:'🟢 낮음'}[t.priority]}</span>`;
+    const partnerTag  = t.partner ? `<span class="tag tag-partner">👤 ${t.partner}</span>` : '';
+    const startTag    = t.start   ? `<span class="tag tag-date">📅 ${t.start}</span>` : '';
+    const endTag      = t.end     ? `<span class="tag tag-date">⏰ ${t.end}</span>` : '';
+    const noteHtml    = t.note    ? `<div class="task-note">💬 ${t.note}</div>` : '';
+    return `
+    <div class="task-card priority-${t.priority} ${t.done?'done-card':''}" id="task_${t.id}">
+      <div class="task-card-top">
+        <input type="checkbox" class="task-check" ${t.done?'checked':''} onchange="toggleDone('${t.id}',this.checked)"/>
+        <div class="task-main">
+          <div class="task-title">${t.title}</div>
+          <div class="task-meta">${priorityTag}${partnerTag}${startTag}${endTag}</div>
+          ${noteHtml}
+        </div>
+        <div class="task-actions">
+          <button class="icon-btn" onclick="openModal('${t.id}')" title="수정">✏️</button>
+          <button class="icon-btn" onclick="deleteTask('${t.id}')" title="삭제">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTasks();
+}
+
+// ── 업무 CRUD ──
+function toggleDone(id, checked) {
+  const task = data[currentPeriod].tasks.find(t => t.id===id);
+  if (task) { task.done = checked; saveData(); renderSummary(); renderTasks(); }
+}
+
+function deleteTask(id) {
+  if (!confirm('이 업무를 삭제하시겠습니까?')) return;
+  data[currentPeriod].tasks = data[currentPeriod].tasks.filter(t => t.id!==id);
+  saveData(); renderSummary(); renderTasks(); renderSubSummary();
+}
+
+function openModal(id) {
+  editingId = id || null;
+  const modal = document.getElementById('modalOverlay');
+  modal.classList.remove('hidden');
+  if (id) {
+    const t = data[currentPeriod].tasks.find(x=>x.id===id);
+    if (!t) return;
+    document.getElementById('modalTitle').textContent = '업무 수정';
+    document.getElementById('f_title').value    = t.title||'';
+    document.getElementById('f_start').value    = t.start||'';
+    document.getElementById('f_end').value      = t.end||'';
+    document.getElementById('f_priority').value = t.priority||'mid';
+    document.getElementById('f_partner').value  = t.partner||'';
+    document.getElementById('f_note').value     = t.note||'';
+  } else {
+    document.getElementById('modalTitle').textContent = '업무 추가';
+    document.getElementById('f_title').value    = '';
+    document.getElementById('f_start').value    = new Date().toISOString().split('T')[0];
+    document.getElementById('f_end').value      = '';
+    document.getElementById('f_priority').value = 'mid';
+    document.getElementById('f_partner').value  = '';
+    document.getElementById('f_note').value     = '';
+  }
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.add('hidden');
+  editingId = null;
+}
+
+function saveTask() {
+  const title = document.getElementById('f_title').value.trim();
+  if (!title) { alert('업무 내용을 입력해주세요'); return; }
+  const taskData = {
+    title,
+    start:    document.getElementById('f_start').value,
+    end:      document.getElementById('f_end').value,
+    priority: document.getElementById('f_priority').value,
+    partner:  document.getElementById('f_partner').value.trim(),
+    note:     document.getElementById('f_note').value.trim(),
+    done:     false,
+  };
+  if (editingId) {
+    const idx = data[currentPeriod].tasks.findIndex(t=>t.id===editingId);
+    if (idx>=0) {
+      taskData.done = data[currentPeriod].tasks[idx].done;
+      taskData.id   = editingId;
+      data[currentPeriod].tasks[idx] = taskData;
+    }
+  } else {
+    taskData.id = 'task_' + Date.now();
+    data[currentPeriod].tasks.unshift(taskData);
+  }
+  saveData();
+  closeModal();
+  renderSummary();
+  renderTasks();
+  renderSubSummary();
+  showToast(editingId ? '✅ 업무가 수정되었습니다' : '✅ 업무가 추가되었습니다');
+}
+
+// 모달 외부 클릭 닫기
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
+
+// ── 토스트 ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+init();
+</script>
+</body>
+</html>
