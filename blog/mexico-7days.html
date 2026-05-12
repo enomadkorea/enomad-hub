@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>한국에서 멕시코까지 7일 — 이노마드</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --navy:#0A1F44;--blue:#1A4FB3;--accent:#4a8cff;
+  --text:#1A202C;--sub:#4A5568;--light:#718096;
+  --bg:#F7F8FA;--white:#fff;--border:#E2E8F0;
+  --mexico:#006847;--mexico2:#CE1126;--gold:#C9A84C;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);line-height:1.8;}
+
+/* 헤더 */
+.site-header{background:var(--navy);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+.site-logo{font-family:'Montserrat',sans-serif;font-size:15px;font-weight:900;color:#fff;text-decoration:none;letter-spacing:1px;}
+.site-logo span{color:#60A5FA;}
+.header-tag{font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:1px;text-transform:uppercase;}
+
+/* 히어로 */
+.hero{background:linear-gradient(160deg, #0A1F44 0%, #0d3b2e 60%, #006847 100%);padding:64px 24px 56px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");}
+.hero-eyebrow{display:inline-block;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);font-size:11px;font-weight:700;letter-spacing:2px;padding:5px 16px;border-radius:20px;margin-bottom:20px;text-transform:uppercase;}
+.hero h1{font-family:'Noto Serif KR',serif;font-size:clamp(26px,5vw,42px);font-weight:900;color:#fff;line-height:1.3;margin-bottom:16px;}
+.hero h1 em{color:#86EFAC;font-style:normal;}
+.hero-sub{font-size:15px;color:rgba(255,255,255,0.65);max-width:520px;margin:0 auto 32px;line-height:1.7;}
+.hero-badges{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;}
+.badge{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:8px 18px;border-radius:24px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;}
+.badge-highlight{background:var(--mexico);border-color:var(--mexico);}
+
+/* 루트 시각화 */
+.route-section{background:#fff;padding:48px 24px;}
+.route-inner{max-width:760px;margin:0 auto;}
+.section-eyebrow{font-size:11px;font-weight:700;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+.section-title{font-family:'Noto Serif KR',serif;font-size:clamp(20px,3vw,28px);font-weight:900;color:var(--navy);margin-bottom:8px;line-height:1.4;}
+.section-desc{font-size:14px;color:var(--sub);line-height:1.8;margin-bottom:32px;}
+
+.route-map{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:40px;flex-wrap:wrap;gap:4px;}
+.route-node{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.route-node-icon{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;border:3px solid var(--border);}
+.route-node-icon.active{border-color:var(--navy);background:var(--navy);}
+.route-node-label{font-size:11px;font-weight:700;color:var(--sub);text-align:center;}
+.route-node-sub{font-size:9px;color:var(--light);text-align:center;}
+.route-arrow{font-size:18px;color:var(--border);margin:0 4px;padding-bottom:20px;}
+.route-arrow.air{color:var(--blue);}
+.route-arrow.land{color:var(--mexico);}
+.route-arrow-label{font-size:9px;color:var(--sub);text-align:center;margin-top:2px;}
+
+/* 타임라인 */
+.timeline{position:relative;padding-left:32px;margin-bottom:8px;}
+.timeline::before{content:'';position:absolute;left:11px;top:4px;bottom:4px;width:2px;background:linear-gradient(180deg,var(--navy),var(--mexico));}
+.tl-item{position:relative;margin-bottom:20px;}
+.tl-dot{position:absolute;left:-32px;top:3px;width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 0 0 2px var(--navy);}
+.tl-dot.mx{background:var(--mexico);box-shadow:0 0 0 2px var(--mexico);}
+.tl-day{font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
+.tl-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:2px;}
+.tl-desc{font-size:12px;color:var(--sub);}
+
+/* 본문 */
+.article-section{max-width:720px;margin:0 auto;padding:48px 24px;}
+.article-lead{font-family:'Noto Serif KR',serif;font-size:18px;color:var(--navy);line-height:1.9;margin-bottom:32px;padding:24px 28px;background:#F0F4FF;border-left:4px solid var(--blue);border-radius:0 8px 8px 0;}
+.article-body p{font-size:15px;color:var(--text);line-height:1.95;margin-bottom:20px;}
+.article-body h2{font-family:'Noto Serif KR',serif;font-size:20px;font-weight:900;color:var(--navy);margin:40px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);}
+.article-body h3{font-size:16px;font-weight:700;color:var(--navy);margin:28px 0 10px;}
+.article-body strong{color:var(--navy);font-weight:700;}
+.article-body em{font-style:normal;color:var(--sub);background:#F7F8FA;padding:1px 4px;border-radius:3px;}
+
+/* 인용구 */
+.blockquote{background:var(--navy);color:#fff;padding:28px 32px;border-radius:12px;margin:32px 0;position:relative;}
+.blockquote::before{content:'"';font-size:80px;color:rgba(255,255,255,0.1);position:absolute;top:-10px;left:20px;font-family:serif;line-height:1;}
+.blockquote p{font-family:'Noto Serif KR',serif;font-size:18px;line-height:1.7;position:relative;z-index:1;}
+.blockquote cite{display:block;font-size:12px;color:rgba(255,255,255,0.5);margin-top:12px;font-style:normal;}
+
+/* 카고 카드 */
+.cargo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0;}
+.cargo-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px 16px;text-align:center;transition:all .2s;}
+.cargo-card:hover{box-shadow:0 4px 20px rgba(10,31,68,0.1);transform:translateY(-2px);}
+.cargo-icon{font-size:32px;margin-bottom:10px;}
+.cargo-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.cargo-desc{font-size:12px;color:var(--sub);line-height:1.6;}
+
+/* 숫자 하이라이트 */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:32px 0;}
+.stat-box{background:var(--navy);border-radius:12px;padding:24px 16px;text-align:center;color:#fff;}
+.stat-num{font-family:'Montserrat',sans-serif;font-size:32px;font-weight:900;color:#86EFAC;line-height:1;}
+.stat-unit{font-size:13px;color:rgba(255,255,255,0.6);margin-top:4px;}
+.stat-label{font-size:11px;color:rgba(255,255,255,0.5);margin-top:6px;}
+
+/* CTA */
+.cta-section{background:linear-gradient(135deg,var(--navy),var(--blue));padding:56px 24px;text-align:center;}
+.cta-inner{max-width:560px;margin:0 auto;}
+.cta-section h2{font-family:'Noto Serif KR',serif;font-size:24px;font-weight:900;color:#fff;margin-bottom:12px;}
+.cta-section p{font-size:14px;color:rgba(255,255,255,0.7);margin-bottom:28px;line-height:1.7;}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.cta-btn{padding:13px 28px;border-radius:8px;font-size:14px;font-weight:700;text-decoration:none;font-family:'Noto Sans KR',sans-serif;transition:all .15s;}
+.cta-btn-primary{background:#fff;color:var(--navy);}
+.cta-btn-primary:hover{background:#EBF4FF;}
+.cta-btn-secondary{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.3);}
+.cta-contact{margin-top:24px;font-size:12px;color:rgba(255,255,255,0.5);}
+.cta-contact a{color:rgba(255,255,255,0.7);text-decoration:none;}
+
+/* 푸터 */
+.footer{background:#0A1F44;padding:24px;text-align:center;}
+.footer p{font-size:11px;color:rgba(255,255,255,0.3);}
+.footer strong{color:rgba(255,255,255,0.6);}
+
+/* 뒤로 버튼 */
+.back-btn{position:fixed;top:70px;left:20px;background:rgba(255,255,255,0.9);border:1px solid var(--border);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:600;color:var(--navy);text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,0.1);z-index:50;backdrop-filter:blur(8px);}
+.back-btn:hover{background:#fff;}
+
+@media(max-width:600px){
+  .cargo-grid{grid-template-columns:1fr;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .route-map{gap:2px;}
+  .route-node-icon{width:44px;height:44px;font-size:18px;}
+  .back-btn{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="site-header">
+  <a class="site-logo" href="../"><span>ENOMAD</span> KOREA</a>
+  <span class="header-tag">물류연구 · 실전 리포트</span>
+</div>
+
+<a class="back-btn" href="../">← 허브로</a>
+
+<!-- 히어로 -->
+<div class="hero">
+  <div class="hero-eyebrow">🇲🇽 멕시코 급행 물류 실전 리포트</div>
+  <h1>한국에서 멕시코까지 <em>7일</em><br/>아무도 안 했던 루트를<br/>우리가 먼저 뚫었다</h1>
+  <p class="hero-sub">인천 → LA → 국경 통과 → 멕시코시티<br/>이노마드가 직접 개척하고 검증한 루트</p>
+  <div class="hero-badges">
+    <div class="badge badge-highlight">🚀 리드타임 7일</div>
+    <div class="badge">✈️ 항공 + 🚛 육로 복합</div>
+    <div class="badge">🤝 현지 한국 파트너</div>
+  </div>
+</div>
+
+<!-- 루트 시각화 -->
+<div class="route-section">
+  <div class="route-inner">
+    <div class="section-eyebrow">The Route</div>
+    <div class="section-title">이 루트가 작동하는 방식</div>
+    <div class="section-desc">단순한 항공 직송이 아닙니다. 인천에서 LA, 그리고 국경을 넘어 멕시코시티까지 — 속도와 안정성을 동시에 잡은 복합 루트입니다.</div>
+
+    <div class="route-map">
+      <div class="route-node">
+        <div class="route-node-icon active">🏭</div>
+        <div class="route-node-label">픽업</div>
+        <div class="route-node-sub">국내 출발지</div>
+      </div>
+      <div class="route-arrow">→</div>
+      <div class="route-node">
+        <div class="route-node-icon active">✈️</div>
+        <div class="route-node-label">인천 ICN</div>
+        <div class="route-node-sub">수출 통관</div>
+      </div>
+      <div class="route-arrow air">✈️→</div>
+      <div class="route-node">
+        <div class="route-node-icon active">🌉</div>
+        <div class="route-node-label">LA / LAX</div>
+        <div class="route-node-sub">입고 + 준비</div>
+      </div>
+      <div class="route-arrow land">🚛→</div>
+      <div class="route-node">
+        <div class="route-node-icon active" style="background:var(--mexico);border-color:var(--mexico);">🇲🇽</div>
+        <div class="route-node-label">멕시코시티</div>
+        <div class="route-node-sub">CDMX 도착</div>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot">1</div>
+        <div class="tl-day">Day 1</div>
+        <div class="tl-title">픽업 + 수출 통관</div>
+        <div class="tl-desc">국내 픽업 후 인천공항 수출 통관 완료</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">2</div>
+        <div class="tl-day">Day 2 – 3</div>
+        <div class="tl-title">항공 운송 (인천 → LA)</div>
+        <div class="tl-desc">태평양 횡단, LA/LAX 도착</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">3</div>
+        <div class="tl-day">Day 3 – 4</div>
+        <div class="tl-title">LA 입고 + 국경 통과 준비</div>
+        <div class="tl-desc">현지 파트너 인계, 멕시코 수입 서류 준비</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">4</div>
+        <div class="tl-day">Day 5 – 6</div>
+        <div class="tl-title">육로 운송 (LA → 멕시코시티)</div>
+        <div class="tl-desc">국경 통과 + 멕시코 내륙 운송</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot mx">✓</div>
+        <div class="tl-day">Day 7</div>
+        <div class="tl-title">멕시코시티 도착 및 배송 완료</div>
+        <div class="tl-desc">CDMX 현지 라스트마일 완료</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 본문 -->
+<div class="article-section">
+
+  <div class="article-lead">
+    멕시코 수출을 알아보신 적 있으신가요?<br/>
+    대부분의 반응은 이렇습니다.<br/><br/>
+    <em>"통관이 너무 복잡하다던데요."</em><br/>
+    <em>"배송이 몇 달씩 걸린다고 들었는데..."</em><br/><br/>
+    맞습니다. 실제로 멕시코는 쉽지 않습니다.<br/>
+    그래서 이노마드는 오래 연구했습니다. 직접 루트를 만들기로 했습니다.
+  </div>
+
+  <div class="article-body">
+
+    <h2>왜 LA 경유인가?</h2>
+    <p>처음엔 "왜 굳이 이 루트냐"는 질문을 많이 받았습니다. 직항이 있는데 왜 LA를 경유하느냐고.</p>
+    <p>답은 간단합니다. <strong>멕시코 현지 한국 파트너.</strong></p>
+    <p>이노마드는 멕시코 현지에서 직접 운영하는 한국인 파트너와 함께합니다. 단순한 에이전트가 아닙니다. 현지 법인을 통해 실제로 통관을 처리하고, 라스트마일을 책임지는 파트너입니다.</p>
+
+    <div class="blockquote">
+      <p>멕시코 통관은 '아는 사람'이 없으면 풀리지 않는 경우가 많습니다. 현지 세관의 특성, 요구 서류의 미묘한 차이, 비정기적으로 바뀌는 규정들 — 이걸 현지에서 직접 대응할 수 있는 사람이 있느냐 없느냐가 화물의 운명을 가릅니다.</p>
+      <cite>— 이노마드 물류연구팀</cite>
+    </div>
+
+    <h2>어떤 화물에 맞나요?</h2>
+
+    <div class="cargo-grid">
+      <div class="cargo-card">
+        <div class="cargo-icon">💄</div>
+        <div class="cargo-title">K-뷰티 / 화장품</div>
+        <div class="cargo-desc">멕시코 K-뷰티 수요는 폭발적 성장 중. 빠른 트렌드 대응이 핵심인 시장에서 7일 배송은 경쟁 우위 그 자체</div>
+      </div>
+      <div class="cargo-card">
+        <div class="cargo-icon">🎁</div>
+        <div class="cargo-title">굿즈 / 아이돌 MD</div>
+        <div class="cargo-desc">한류 팬덤은 멕시코에도 있습니다. 한정판 굿즈의 생명은 속도 — 늦게 도착하는 굿즈는 팬들의 마음이 식은 뒤에 옵니다</div>
+      </div>
+      <div class="cargo-card">
+        <div class="cargo-icon">🍜</div>
+        <div class="cargo-title">K-Food / 식품</div>
+        <div class="cargo-desc">유통기한이 있는 식품류는 빠른 배송이 곧 비즈니스 생존. 특히 프리미엄 식품이라면 더욱 그렇습니다</div>
+      </div>
+    </div>
+
+    <h2>핵심 숫자</h2>
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-num">7</div>
+        <div class="stat-unit">Days</div>
+        <div class="stat-label">최단 리드타임</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">$20</div>
+        <div class="stat-unit">/kg</div>
+        <div class="stat-label">관세 포함 올인가 (현재 기준)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">3</div>
+        <div class="stat-unit">Cities</div>
+        <div class="stat-label">CDMX · MTY · GDL</div>
+      </div>
+    </div>
+
+    <h2>이노마드가 이 루트를 만든 이유</h2>
+    <p>이노마드는 <strong>'물류를 연구하는 그룹'</strong>입니다.</p>
+    <p>기존에 있는 루트를 단순히 중개하는 것이 아니라, 아무도 안 가본 길을 먼저 가보고, 검증하고, 그 결과를 고객과 나누는 것 — 그게 이노마드가 물류를 대하는 방식입니다.</p>
+    <p>멕시코 루트도 그렇게 만들어졌습니다. 처음에 이 루트의 가능성을 쉽게 보지 않은 사람들이 많았습니다. 직접 해보기 전까지는.</p>
+    <p>지금 이 루트를 통해 화장품, 굿즈, 식품이 매주 멕시코시티에 도착하고 있습니다.</p>
+
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-inner">
+    <h2>멕시코 시장을 보고 계신가요?</h2>
+    <p>이노마드와 먼저 이야기 나눠보세요.<br/>무료 물류 컨설팅 · 맞춤 견적 · 루트 설계까지</p>
+    <div class="cta-btns">
+      <a class="cta-btn cta-btn-primary" href="mailto:sel@enomad.co.kr">📧 이메일 문의</a>
+      <a class="cta-btn cta-btn-secondary" href="http://www.enomad.co.kr" target="_blank">🌐 웹사이트 보기</a>
+    </div>
+    <div class="cta-contact">
+      📞 070-8657-0105 (평일 09:00~18:00) &nbsp;|&nbsp;
+      <a href="mailto:sel@enomad.co.kr">sel@enomad.co.kr</a>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <p><strong>ENOMAD KOREA</strong> · 서울시 강서구 공항대로 247, B동 1112호<br/>
+  물류연구의 결과를 고객과 나눕니다 · © 2026 ENOMAD</p>
+</div>
+
+</body>
+</html>
